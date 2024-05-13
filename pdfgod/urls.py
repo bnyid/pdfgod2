@@ -27,13 +27,10 @@ urlpatterns = [
     path("del_pdfs/", del_pdfs, name= 'del_pdfs'),
     path("move_pdf/", move_pdf, name= 'move_pdf'),
     path("merge_pdfs/",merge_pdfs, name = 'merge_pdfs'),
-    path("copy_pdfs/",copy_pdfs, name = 'copy_pdfs'),
 
     # api
-    path("api/sections/<int:category_id>/", get_sections, name='api_sections'),
-    path("api/groups/<int:section_id>/", get_groups, name='api_groups'),
-    path("api/folders/<int:group_id>/", get_folders, name='api_folders'),
-    
+    path('paste_pdfs/', paste_pdfs, name='paste_pdfs'),  # 붙여넣기
+   
     #memo
     path('update-folder-memo/<int:folder_id>/', update_folder_memo, name='update-folder-memo'),
 ]

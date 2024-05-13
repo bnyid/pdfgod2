@@ -29,22 +29,29 @@ def update_folder_memo(request, folder_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
 
+@require_http_methods(["POST"])
+def paste_pdfs(request):
+    try:
+        data = json.loads(request.body)
+        target_folder_id = data['target_folder_id']
+        pdf_ids = data['pdf_ids']
+        target_folder = Folder.objects.get(id=target_folder_id)
+        new_pdfs = []
 
+        for pdf_id in pdf_ids:
+            pdf = Pdf.objects.get(id=pdf_id)
+            new_pdf = Pdf(
+                name=pdf.name,
+                folder=target_folder,
+                file=pdf.file,
+                is_copied=True
+            )
+            new_pdf.save()
+            new_pdfs.append(new_pdf)
 
-# 드롭다운 메뉴를 보여주기 위한 view
-def get_sections(request, category_id):
-    sections = Section.objects.filter(category_id=category_id).values('id', 'name')
-    return JsonResponse(list(sections), safe=False)
-
-def get_groups(request, section_id):
-    groups = Group.objects.filter(section_id=section_id).values('id', 'name')
-    return JsonResponse(list(groups), safe=False)
-
-def get_folders(request, group_id):
-    folders = Folder.objects.filter(group_id=group_id).values('id', 'name')
-    return JsonResponse(list(folders), safe=False)
-
-
+        return JsonResponse({'success': True, 'message': f'{len(new_pdfs)} PDFs pasted successfully.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 def mk_category(request):

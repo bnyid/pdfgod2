@@ -9,12 +9,8 @@
             vertical-align: top; /* 셀의 내용을 위로 정렬 */
         }
     </style>
-    <link rel="stylesheet" href="/static/css/main.css">
 </head>
 <body>
-    <header>
-        <img src="/static/css/logo_2(가로로긴거).png" alt="B&Y PDF Management Logo" id="logo">
-    </header>
     <h2>B&Y PDF Management : {{category.name}} - {{section}} - {{group}}</h2>
 <!-- 카테고리 생성 폼 -->
     <form method="POST" action="">
@@ -95,32 +91,27 @@
     <button type="submit" data-url="{% url 'merge_pdfs' %}" onclick="submitForm('tableForm', 'input_checkbox', this.getAttribute('data-url')); return false;" >PDF생성</button>
     <span> ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ </span>
 
-<!-- pdf Copy-->
-    <select id="categoryDropdown" onchange="updateSections()">
-        <option value="">Select Category</option>
-        {% for category in categories %}
-        <option value="{{ category.id }}">{{ category.name }}</option>
-        {% endfor %}
-    </select>
-
-    <select id="sectionDropdown" onchange="updateGroups()"></select>
-    <select id="groupDropdown" onchange="updateFolders()"></select>
-    <select id="folderDropdown" name="target_folder_id"></select>
-
-    <button type="button" onclick="copyPDFs()">Copy PDFs</button>
+<!-- pdf Copy -->
+    <button type="button" onclick="prepareCopy()">Copy PDFs</button>
+    <span id="copyStatus" style="margin-left: 10px;"></span>
 
         <table border="1">
             <tr>
 <!-- 헤더열(폴더이름)) -->
                 {% for folder in group.folders.all %}
                 <th>
-                    {{folder.name}} <button type="submit" name="folder_id" value="{{folder.id}}" data-url="{% url 'del_folder' category.id section.id group.id %}" onclick="submitForm('tableForm','input_checkbox', this.getAttribute('data-url'), '{{ folder.id }}'); return false;">X</button>
+<!-- Paste PDFs 버튼-->
+                    <button type="button" onclick="pastePDFs('{{folder.id}}', event); return false;">Paste</button>
+                    {{folder.name}} 
+<!-- 폴더 삭제 -->
+                <button type="button" onclick="confirmDelete('{{folder.id}}', '{{folder.name}}', event); return false;">X</button>
+<!-- 붙여넣기 성공 메시지 -->
+                    <span id="pasteStatus-{{folder.id}}" class="pasteStatus"></span>
                 </th>
                 {% endfor %}
             </tr>        
             <tr>
 <!-- 폴더 메모 -->
-                
                 {% for folder in group.folders.all %}
                 <td>
                     <div contenteditable="true" data-folder-id="{{ folder.id }}" class="editable-memo">
@@ -218,69 +209,54 @@
         })
         .catch(error => console.error('Error:', error));
     }
- 
 
 
-    function updateSections() {
-    const categoryId = document.getElementById('categoryDropdown').value;
-    fetch(`/api/sections/${categoryId}`)
-        .then(response => response.json())
-        .then(sections => {
-            const sectionDropdown = document.getElementById('sectionDropdown');
-            sectionDropdown.innerHTML = '<option value="">Select Section</option>';
-            sections.forEach(section => {
-                sectionDropdown.innerHTML += `<option value="${section.id}">${section.name}</option>`;
-            });
+    function prepareCopy() {
+        copiedPDFs = [];
+        document.querySelectorAll('input[name="pdf_ids"]:checked').forEach(input => {
+            copiedPDFs.push(input.value);
         });
+        const statusElement = document.getElementById('copyStatus');
+        if (copiedPDFs.length > 0) {
+            sessionStorage.setItem('copiedPDFs', JSON.stringify(copiedPDFs)); // 저장
+            statusElement.textContent = '복사 성공';  // 메시지 업데이트
+            statusElement.style.color = 'green';  // 텍스트 색상을 초록색으로 변경
+        } else {
+            alert('No PDFs selected!');
+        }
     }
 
-    function updateGroups() {
-        const sectionId = document.getElementById('sectionDropdown').value;
-        fetch(`/api/groups/${sectionId}`)
+    function pastePDFs(folderId) {
+        event.preventDefault(); // 기본 폼 제출 방지
+        const buttonElement = event.currentTarget; // 현재 버튼 요소 참조
+        const statusElement = buttonElement.nextElementSibling; // 상태 표시 요소 찾기
+        copiedPDFs = JSON.parse(sessionStorage.getItem('copiedPDFs')) || []; // copy된 객체들 불러오기
+
+
+        fetch('{% url "paste_pdfs" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ pdf_ids: copiedPDFs, target_folder_id: folderId })
+            })
             .then(response => response.json())
-            .then(groups => {
-                const groupDropdown = document.getElementById('groupDropdown');
-                groupDropdown.innerHTML = '<option value="">Select Group</option>';
-                groups.forEach(group => {
-                    groupDropdown.innerHTML += `<option value="${group.id}">${group.name}</option>`;
-                });
+            .then(data => {
+                if (data.success) {
+                    statusElement.textContent = '붙여넣기 완료';
+                    statusElement.style.color = 'green';  // 성공 메시지는 초록색으로 표시
+                    setTimeout(() => window.location.reload(), 50); // 1초 후 페이지 새로고침
+                } else {
+                    alert('Error pasting PDFs: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error while pasting PDFs');
             });
-    }
+       }
 
-    function updateFolders() {
-        const groupId = document.getElementById('groupDropdown').value;
-        fetch(`/api/folders/${groupId}`)
-            .then(response => response.json())
-            .then(folders => {
-                const folderDropdown = document.getElementById('folderDropdown');
-                folderDropdown.innerHTML = '<option value="">Select Folder</option>';
-                folders.forEach(folder => {
-                    folderDropdown.innerHTML += `<option value="${folder.id}">${folder.name}</option>`;
-                });
-            });
-    }
-
-    function copyPDFs() {
-        const form = document.getElementById('tableForm');
-        const formData = new FormData(form);
-
-        fetch('{% url "copy_pdfs" %}', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('PDFs copied successfully!');
-            } else {
-                alert('Error copying PDFs');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Network error');
-        });
-    }
 
 // 메모 수정
 
@@ -311,7 +287,32 @@
         });
     });
 
+ // 폴더 삭제 확인창
 
+    function confirmDelete(folderId, folderName, event) {
+        event.preventDefault();  // 기본 폼 제출 방지
+        if (confirm(folderName + " 폴더를 삭제하시겠습니까?")) {
+            var form = document.getElementById('tableForm');  // 폼 ID가 'tableForm'인 폼을 선택
+            form.action = `{% url 'del_folder' category.id section.id group.id %}`;  // 동적 URL 처리
+            var inputFolder_id = document.createElement('input');  // 숨겨진 input 생성
+            inputFolder_id.type = 'hidden';
+            inputFolder_id.name = 'folder_id';
+            inputFolder_id.value = folderId;
+            form.appendChild(inputFolder_id);  // 폼에 숨겨진 input 추가
+
+            // CSRF 토큰 추가 (폼에 이미 존재하는 경우가 많으므로 추가하지 않아도 될 수 있음)
+            var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]');
+            if (!csrfToken) {
+                csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = 'csrfmiddlewaretoken';
+                csrfToken.value = '{{ csrf_token }}';
+                form.appendChild(csrfToken);
+            }
+
+            form.submit();  // 폼 제출
+        }
+    }
 
 
 
