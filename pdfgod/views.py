@@ -5,7 +5,7 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfbase.ttfonts import TTFont, pdfmetrics
 
-
+from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_http_methods
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -23,7 +23,7 @@ def update_folder_memo(request, folder_id):
     try:
         data = json.loads(request.body)
         folder = Folder.objects.get(id=folder_id)
-        folder.memo = data['memo']
+        folder.memo = mark_safe(data['memo'])
         folder.save()
         return JsonResponse({'success': True})
     except Exception as e:
