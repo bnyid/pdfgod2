@@ -1,0 +1,36 @@
+/* admin.css 파일 */
+th.column-category {
+    width: 130px;
+}
+
+th.column-section {
+    width: 100px;  /* 원하는 너비로 조정 */
+}
+
+th.column-group {
+    width: 100px;  /* 원하는 너비로 조정 */
+}
+
+th.column-folder {
+    width: 100px;  /* 원하는 너비로 조정 */
+}
+
+/* Group 관리자 페이지의 열 너비 조정 */
+th.column-get_category {
+    width: 100px;  /* 원하는 너비로 조정 */
+}
+
+th.column-get_section {
+    width: 100px;  /* 원하는 너비로 조정 */
+}
+
+
+
+ header {
+    text-align: center; /* 로고를 중앙에 배치 */
+    padding: 20px 0; /* 상하 패딩 추가 */
+ }
+ #logo {
+    width: 100px; /* 로고의 너비 설정 */
+    height: auto; /* 높이를 자동으로 조절하여 비율 유지 */
+ }

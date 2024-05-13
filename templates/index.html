@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        td {
+            vertical-align: top; /* 셀의 내용을 위로 정렬 */
+        }
+    </style>
+    <link rel="stylesheet" href="/static/css/main.css">
+</head>
+<body>
+    <header>
+        <img src="/static/css/logo_2(가로로긴거).png" alt="B&Y PDF Management Logo" id="logo">
+    </header>
+    <h2>B&Y PDF Management : {{category.name}} - {{section}} - {{group}}</h2>
+<!-- 카테고리 생성 폼 -->
+    <form method="POST" action="">
+        {% csrf_token %}
+        <lable> 카테 고리 : </lable>
+        <input type="text" name="name" maxlength="50">
+        <input type="submit" value="생성" formaction="{% url 'mk_category' %}">
+        <span> | </span>
+
+<!-- 카테고리 목록 -->
+        {% if category %}
+        {% for category in categories %}
+        <input type="submit" value="{{category.name}}" formaction="{% url 'index_with_category' category.id %}">
+        {% endfor %}
+        {% endif %}
+    </form>
+
+
+<!-- 섹션 생성-->
+    <form method="POST" action="">
+        {% csrf_token %}
+        {% if category %}
+            <label for="id_name"> 섹션 이름 : </label>
+            <input type="text" name="name" maxlength="50">
+            <input type="submit" value="생성" formaction="{% url 'mk_section' category.id %}">
+        {% else %} 카테고리를 먼저 생성하세요.
+        {% endif %}
+        
+        <span> | </span>
+
+<!-- 섹션 목록-->
+        {% if section %} {% for section in sections %}
+            <input type="submit" value="{{section.name}}" formaction="{% url 'index_with_category_section' category.id section.id %}">
+        {% endfor %}
+        {% else %} 아직 섹션이 없습니다.
+        {% endif %}
+        
+
+    </form>
+    
+<!-- 그룹 생성 폼 -->
+    <form method="POST" action="">
+        {% csrf_token %}
+            <label for="id_name">그룹 이름 : </label>
+            <input type="text" name="name" maxlength="50">
+        {% if section %}
+            <input type="submit" value="생성" formaction="{% url 'mk_group' category.id section.id %}">
+        {% endif %}
+            <span> | </span>
+
+<!-- 그룹 목록 -->
+        {% if group %} {% for group in groups %}
+            <input type="submit" value="{{group.name}}" formaction="{% url 'index_with_full_ids' category.id section.id group.id%}">
+        {% endfor %}
+        {% else %} 아직 그룹이 없습니다.
+        {% endif %}
+    </form>
+
+
+    <form method="POST">
+        {% csrf_token %}
+        폴더 이름 : {{ form_folder.name }}
+        {% if group %}
+        <input type="submit" value="생성" formaction="{% url 'mk_folder' category.id section.id group.id %}">
+        {% endif %}
+        <span> | </span>
+    </form>
+
+
+<!-- 테이블 시작 -->
+    {% if group.folders %}
+
+    <form method="POST" id="tableForm" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <label for="cover_text">커버 텍스트</label>
+    <input type="text" class="input_checkbox" name="cover_text" required id="cover_text">
+    <button type="submit" data-url="{% url 'merge_pdfs' %}" onclick="submitForm('tableForm', 'input_checkbox', this.getAttribute('data-url')); return false;" >PDF생성</button>
+    <span> ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ </span>
+
+<!-- pdf Copy-->
+    <select id="categoryDropdown" onchange="updateSections()">
+        <option value="">Select Category</option>
+        {% for category in categories %}
+        <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+    </select>
+
+    <select id="sectionDropdown" onchange="updateGroups()"></select>
+    <select id="groupDropdown" onchange="updateFolders()"></select>
+    <select id="folderDropdown" name="target_folder_id"></select>
+
+    <button type="button" onclick="copyPDFs()">Copy PDFs</button>
+
+        <table border="1">
+            <tr>
+<!-- 헤더열(폴더이름)) -->
+                {% for folder in group.folders.all %}
+                <th>
+                    {{folder.name}} <button type="submit" name="folder_id" value="{{folder.id}}" data-url="{% url 'del_folder' category.id section.id group.id %}" onclick="submitForm('tableForm','input_checkbox', this.getAttribute('data-url'), '{{ folder.id }}'); return false;">X</button>
+                </th>
+                {% endfor %}
+            </tr>        
+            <tr>
+<!-- 폴더 메모 -->
+                
+                {% for folder in group.folders.all %}
+                <td>
+                    <div contenteditable="true" data-folder-id="{{ folder.id }}" class="editable-memo">
+                        {{ folder.memo }}
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+<!-- PDF 업로드열-->
+            <tr>
+                {% for folder in group.folders.all %}
+                <td>
+                        <input type="file" class="upload_pdfs" name="pdfs_upload" required multiple>
+                        <input type="hidden" class="upload_pdfs" name="folder_id" value="{{folder.id}}">
+                        <button type="submit" data-url="{% url 'upload_pdfs' category.id section.id group.id %}" onclick="submitForm('tableForm', 'upload_pdfs', this.getAttribute('data-url'), '{{ folder.id }}'); return false;">Upload</button>
+                    </td>
+                {% endfor %}
+            </tr>
+            <tr>
+<!-- pdfs&체크박스 -->
+                {% csrf_token %}
+                {% for folder, pdfs in folders_with_pdfs %}
+                <td>
+                    <table>
+                        {% for pdf in pdfs %}
+                        <tr>
+                            <td>
+                                    <input type="hidden" class="input_checkbox" name="folder_id" value="{{folder.id}}">
+                                    <input type="checkbox" class="input_checkbox" name="pdf_ids" id="checkbox_{{pdf.id}}"  value="{{pdf.id}}">
+                                    <label for="checkbox_{{pdf.id}}">{{pdf.name}}</label>
+                            </td>
+                            <td>
+                                <button type="button" onclick="movePDF('{{ pdf.id }}', 'up');">&#8593;</button> <!-- 위로 이동 -->
+                                <button type="button" onclick="movePDF('{{ pdf.id }}', 'down');">&#8595;</button> <!-- 아래로 이동 -->
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </td>
+            {% endfor %}
+        </tr>
+        </table>
+        <button type="submit" data-url="{% url 'del_pdfs' %}" onclick="submitForm('tableForm', 'input_checkbox', this.getAttribute('data-url'), ); return false;" >PDF삭제</button>
+    </form>
+
+{% endif %}
+        
+
+<script>
+
+    function submitForm(form_id, inputClass, actionUrl, folder_id) {
+        var form = document.getElementById(form_id); // 현재 선택된 form 속성에 접근
+        form.action = actionUrl; // action을 제출된 URL로 설정
+
+        // 폼의 모든 입력 필드를 일시적으로 비활성화
+        form.querySelectorAll('input').forEach(input => {
+            input.disabled = true;
+        });
+
+        // folderId가 제공되면, 폼에 folderId를 전달하기 위한 숨겨진 input을 추가
+        if (folder_id) {
+            var inputFolder_id = document.createElement('input');
+            inputFolder_id.type = 'hidden';
+            inputFolder_id.name = 'folder_id';
+            inputFolder_id.value = folder_id;
+            form.appendChild(inputFolder_id);
+        }
+
+        // 선택된 클래스를 가진 입력 필드만 다시 활성화
+        if (inputClass) {
+            form.querySelectorAll('.' + inputClass + ', input[name="csrfmiddlewaretoken"]').forEach(input => {
+                input.disabled = false;
+            });
+        }
+
+        form.submit(); // 폼 제출
+    }
+
+    function movePDF(pdfId, direction) {
+        fetch(`{% url 'move_pdf' %}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ 'pdf_id': pdfId, 'direction': direction })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload();  // 페이지를 새로고침하여 순서 변경을 반영
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+ 
+
+
+    function updateSections() {
+    const categoryId = document.getElementById('categoryDropdown').value;
+    fetch(`/api/sections/${categoryId}`)
+        .then(response => response.json())
+        .then(sections => {
+            const sectionDropdown = document.getElementById('sectionDropdown');
+            sectionDropdown.innerHTML = '<option value="">Select Section</option>';
+            sections.forEach(section => {
+                sectionDropdown.innerHTML += `<option value="${section.id}">${section.name}</option>`;
+            });
+        });
+    }
+
+    function updateGroups() {
+        const sectionId = document.getElementById('sectionDropdown').value;
+        fetch(`/api/groups/${sectionId}`)
+            .then(response => response.json())
+            .then(groups => {
+                const groupDropdown = document.getElementById('groupDropdown');
+                groupDropdown.innerHTML = '<option value="">Select Group</option>';
+                groups.forEach(group => {
+                    groupDropdown.innerHTML += `<option value="${group.id}">${group.name}</option>`;
+                });
+            });
+    }
+
+    function updateFolders() {
+        const groupId = document.getElementById('groupDropdown').value;
+        fetch(`/api/folders/${groupId}`)
+            .then(response => response.json())
+            .then(folders => {
+                const folderDropdown = document.getElementById('folderDropdown');
+                folderDropdown.innerHTML = '<option value="">Select Folder</option>';
+                folders.forEach(folder => {
+                    folderDropdown.innerHTML += `<option value="${folder.id}">${folder.name}</option>`;
+                });
+            });
+    }
+
+    function copyPDFs() {
+        const form = document.getElementById('tableForm');
+        const formData = new FormData(form);
+
+        fetch('{% url "copy_pdfs" %}', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('PDFs copied successfully!');
+            } else {
+                alert('Error copying PDFs');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Network error');
+        });
+    }
+
+// 메모 수정
+
+    document.querySelectorAll('.editable-memo').forEach(element => {
+        element.addEventListener('blur', function() {
+            const folderId = this.getAttribute('data-folder-id');
+            const newMemo = this.innerText;
+            
+            fetch(`/update-folder-memo/${folderId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ memo: newMemo })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Memo updated successfully!');
+                } else {
+                    console.error('Error updating memo');
+                }
+            })
+            .catch(error => {
+                console.error('Network error:', error);
+            });
+        });
+    });
+
+
+
+
+
+    
+</script>
+
+</body>
+</html>
