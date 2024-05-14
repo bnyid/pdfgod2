@@ -18,14 +18,10 @@ header {
 }
 
 
-table {
-   width: 100%; /* 테이블의 너비를 최소 컨테이너 너비와 같게 설정 */
-   min-width: 500px; /* 최소 너비 설정, 적절한 값으로 조정 가능 */
-   border-collapse: collapse; /* 테이블 셀 사이의 간격 없애기 */
-}
+
 
 th, td {
    white-space: nowrap; /* 셀 내용을 줄 바꿈 없이 한 줄에 표시 */
-   padding: 8px; /* 셀 패딩 설정 */
+   padding: 3px; /* 셀 패딩 설정 */
    border: 1px solid #ccc; /* 셀 테두리 설정 */
 }
