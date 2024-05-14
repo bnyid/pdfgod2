@@ -143,7 +143,7 @@
                     <table class="no-border">
                         {% for pdf in pdfs %}
                         <tr>
-                            <td>
+                            <td class ="ellipsis">
                                     <input type="hidden" class="input_checkbox" name="folder_id" value="{{folder.id}}">
                                     <input type="checkbox" class="input_checkbox" name="pdf_ids" id="checkbox_{{pdf.id}}"  value="{{pdf.id}}">
                                     <label for="checkbox_{{pdf.id}}">{{pdf.name}}</label>
