@@ -349,3 +349,27 @@ def add_text_to_pdf(pdf_path, text):
     # 수정된 PDF 저장
     with open(pdf_path, 'wb') as output_pdf:
         pdf_writer.write(output_pdf)
+
+
+
+
+
+
+
+
+
+
+@require_http_methods(["POST"])
+def update_pdf_name(request, pdf_id):
+    print("pdf이름 업로드 함수가 호출되었씁니다")
+    try:
+        data = json.loads(request.body)
+        new_name = data['name']
+        pdf = Pdf.objects.get(id=pdf_id)
+        pdf.name = new_name
+        pdf.save()
+        return JsonResponse({'success': True})
+    except Pdf.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'PDF not found'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

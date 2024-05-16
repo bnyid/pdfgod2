@@ -149,13 +149,17 @@
                             <td class ="ellipsis">
                                     <input type="hidden" class="input_checkbox" name="folder_id" value="{{folder.id}}">
                                     <input type="checkbox" class="input_checkbox" name="pdf_ids" id="checkbox_{{pdf.id}}"  value="{{pdf.id}}">
-                                    <label for="checkbox_{{pdf.id}}">{{pdf.name}}</label>
-                            </td>
+                                    <label for="checkbox_{{pdf.id}}" onclick="handleClick('{{ pdf.id }}');" id="label-{{ pdf.id }}">{{pdf.name}}</label>
+                                    <input type="text" id="input-{{ pdf.id }}" value="{{ pdf.name }}" style="display: none;" onblur="savePDFName('{{ pdf.id }}');" onkeypress="handleKeyPress(event, '{{ pdf.id }}');">
+
+                                </td>
+<!-- 업다운 버튼-->
                             <td>
                                 <button type="button" onclick="movePDF('{{ pdf.id }}', 'up');">&#8593;</button> <!-- 위로 이동 -->
                                 <button type="button" onclick="movePDF('{{ pdf.id }}', 'down');">&#8595;</button> <!-- 아래로 이동 -->
                             </td>
                         </tr>
+<!-- 이름 수정 버튼-->
                         {% endfor %}
                     </table>
                 </td>
@@ -311,6 +315,74 @@
 
             form.submit();  // 폼 제출
         }
+    }
+
+    // 클릭 카운트를 저장할 객체
+    var clickCounts = {};
+
+    function handleClick(pdfId) {
+        if (!clickCounts[pdfId]) {
+            clickCounts[pdfId] = 0;
+        }
+        clickCounts[pdfId] += 1;
+
+        if (clickCounts[pdfId] === 3) {
+            enableEditing(pdfId);
+            clickCounts[pdfId] = 0;  // 클릭 카운트 초기화
+        }
+
+        // 일정 시간 후 클릭 카운트를 초기화
+        setTimeout(function() {
+            clickCounts[pdfId] = 0;
+        }, 1200);  // 1초 후 초기화
+    }
+
+
+
+    // pdf 이름바꾸기
+
+    function enableEditing(pdfId) {
+        var label = document.getElementById('label-' + pdfId);
+        var input = document.getElementById('input-' + pdfId);
+        label.style.display = 'none';
+        input.style.display = 'inline';
+        setTimeout(function() {
+            input.focus();
+        }, 50); // 약간의 딜레이 후 포커스 설정
+    }
+
+    function handleKeyPress(event, pdfId) {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // 기본 폼 제출 막기
+            savePDFName(pdfId);
+        }
+    }
+
+    
+    function savePDFName(pdfId) {
+        var input = document.getElementById('input-' + pdfId);
+        var newName = input.value;
+
+        fetch(`/update-pdf-name/${pdfId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ name: newName })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                var label = document.getElementById('label-' + pdfId);
+                label.textContent = newName;
+                label.style.display = 'inline';
+                input.style.display = 'none';
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => console.error('Error:', error));
     }
 
 
