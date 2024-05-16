@@ -109,7 +109,10 @@
                     <button type="button" onclick="pastePDFs('{{folder.id}}', event); return false;">Paste</button>
                     {{folder.name}} 
 <!-- 폴더 삭제 -->
+                {% if section and group %}
                 <button type="button" onclick="confirmDelete('{{folder.id}}', '{{folder.name}}', event); return false;">X</button>
+                {% endif %}
+
 <!-- 붙여넣기 성공 메시지 -->
                     <span id="pasteStatus-{{folder.id}}" class="pasteStatus"></span>
                 </th>
@@ -305,16 +308,6 @@
             inputFolder_id.name = 'folder_id';
             inputFolder_id.value = folderId;
             form.appendChild(inputFolder_id);  // 폼에 숨겨진 input 추가
-
-            // CSRF 토큰 추가 (폼에 이미 존재하는 경우가 많으므로 추가하지 않아도 될 수 있음)
-            var csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]');
-            if (!csrfToken) {
-                csrfToken = document.createElement('input');
-                csrfToken.type = 'hidden';
-                csrfToken.name = 'csrfmiddlewaretoken';
-                csrfToken.value = '{{ csrf_token }}';
-                form.appendChild(csrfToken);
-            }
 
             form.submit();  // 폼 제출
         }

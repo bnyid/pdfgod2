@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from .views import *
 
 urlpatterns = [ 
@@ -20,7 +20,8 @@ urlpatterns = [
 
     # folder
     path("mk_folder/<int:category_id>/<int:section_id>/<int:group_id>", mk_folder, name='mk_folder'),
-    path("del_folder/<int:category_id>/<int:section_id>/<int:group_id>", del_folder, name='del_folder'),
+    re_path(r'^del_folder/(?P<category_id>\d+)/(?P<section_id>\d*)/(?P<group_id>\d*)/?$', del_folder, name='del_folder'), #인자를 선택적으로 받을수 있게 해줌 
+    #path("del_folder/<int:category_id>/<int:section_id>/<int:group_id>", del_folder, name='del_folder'), 
 
     # pdf
     path("upload_pdfs/<int:category_id>/<int:section_id>/<int:group_id>", upload_pdfs, name='upload_pdfs'),
