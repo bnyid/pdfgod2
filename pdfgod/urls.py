@@ -20,7 +20,7 @@ urlpatterns = [
 
     # folder
     path("mk_folder/<int:category_id>/<int:section_id>/<int:group_id>", mk_folder, name='mk_folder'),
-    re_path(r'^del_folder/(?P<category_id>\d+)/(?P<section_id>\d*)/(?P<group_id>\d*)/?$', del_folder, name='del_folder'), #인자를 선택적으로 받을수 있게 해줌 
+    re_path(r'^del_folder/(?P<category_id>\d*)/(?P<section_id>\d*)/(?P<group_id>\d*)/?$', del_folder, name='del_folder'), #인자를 선택적으로 받을수 있게 해줌 
     # r을 문자열 ''앞에 붙이면, 그 문자열에서는 \가 그냥 \로 해석됨. (즉 \n 이 줄바꿈을 의미하지 않게됨)
     # ^는 여기서부터 문자열이 시작된다는걸 의미?
     # (?P<category_id>\d+) 는 <int:category_id> 와 같은 역할 ?P<이름> 이 뒤에 올 d+(숫자)에 대해서 category_id라는 이름을 할당함. 이렇게 이름을 부여할땐 괄호()를 쳐줘야함

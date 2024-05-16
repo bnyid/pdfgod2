@@ -1,16 +1,12 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    {% load static %}
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <style>
-        td {
-            vertical-align: top; /* 셀의 내용을 위로 정렬 */
-        }
-
     </style>
 
 </head>
@@ -193,9 +189,10 @@
             form.appendChild(inputFolder_id);
         }
 
-        // 선택된 클래스를 가진 입력 필드만 다시 활성화
+        // 선택된 클래스를 가진 입력 필드만 활성화
         if (inputClass) {
             form.querySelectorAll('.' + inputClass + ', input[name="csrfmiddlewaretoken"]').forEach(input => {
+                                                     // csrf토큰도 활성화
                 input.disabled = false;
             });
         }
@@ -231,7 +228,13 @@
         });
         const statusElement = document.getElementById('copyStatus');
         if (copiedPDFs.length > 0) {
-            sessionStorage.setItem('copiedPDFs', JSON.stringify(copiedPDFs)); // 저장
+            sessionStorage.setItem('copiedPDFs', JSON.stringify(copiedPDFs)); // copiedPDFs (=pdf의 id들) 에 대해서 Json 형식으로 변환된 것을 값으로 할당하여, 키:값 으로 sessionStorage에 저장
+            // setItem(key, value): 주어진 키에 대해 값을 저장합니다.
+            // getItem(key): 주어진 키에 저장된 값을 반환합니다.
+            // removeItem(key): 주어진 키에 저장된 값을 삭제합니다.
+            // clear(): 모든 키와 값을 삭제합니다.
+            // key(index): 인덱스에 해당하는 키를 반환합니다.
+
             statusElement.textContent = '복사 성공';  // 메시지 업데이트
             statusElement.style.color = 'green';  // 텍스트 색상을 초록색으로 변경
         } else {
@@ -241,6 +244,9 @@
 
     function pastePDFs(folderId) {
         event.preventDefault(); // 기본 폼 제출 방지
+            // 이벤트 핸들러가 호출될 때 브라우저가 event 객체를 자동으로 전달합니다.
+            // event 객체는 이벤트에 대한 정보(예: 이벤트가 발생한 요소, 이벤트 타입, 마우스 위치 등)를 포함합니다.
+
         const buttonElement = event.currentTarget; // 현재 버튼 요소 참조
         const statusElement = buttonElement.nextElementSibling; // 상태 표시 요소 찾기
         copiedPDFs = JSON.parse(sessionStorage.getItem('copiedPDFs')) || []; // copy된 객체들 불러오기

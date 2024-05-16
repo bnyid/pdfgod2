@@ -175,7 +175,6 @@ def copy_pdfs(request):  # 여기에 request 매개변수를 추가해야 합니
 
 
 def index(request, category_id=None, section_id=None, group_id=None):
-    print("인덱스 함수가 호출되었습니다.")
     if category_id is None:
         category = Category.objects.first() 
         section = category.sections.first() if category else None
