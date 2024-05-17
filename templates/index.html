@@ -128,10 +128,10 @@
             <tr>
                 {% for folder in group.folders.all %}
                 <td>
-                        <input type="file" class="upload_pdfs" name="pdfs_upload" required multiple>
-                        <input type="hidden" class="upload_pdfs" name="folder_id" value="{{folder.id}}">
-                        <button type="submit" data-url="{% url 'upload_pdfs' category.id section.id group.id %}" onclick="submitForm('tableForm', 'upload_pdfs', this.getAttribute('data-url'), '{{ folder.id }}'); return false;">Upload</button>
-                    </td>
+                    <input type="file" class="upload_pdfs" name="pdfs_upload" required multiple>
+                    <input type="hidden" class="upload_pdfs" name="folder_id" value="{{folder.id}}">
+                    <button type="submit" data-url="{% url 'upload_pdfs' category.id section.id group.id %}" onclick="submitForm('tableForm', 'upload_pdfs', this.getAttribute('data-url'), '{{ folder.id }}'); return false;">Upload</button>
+                </td>
                 {% endfor %}
             </tr>
             <tr>
@@ -142,7 +142,11 @@
                     <table class="no-border">
                         {% for pdf in pdfs %}
                         <tr>
-                            <td class ="ellipsis">
+                            <td 
+                                data-folder-id="{{ folder.id }}"
+                                class="dropzone"
+                                ondrop="handleDrop(event, '{{ folder.id }}')"
+                                ondragover="handleDragOver(event)">
                                     <input type="hidden" class="input_checkbox" name="folder_id" value="{{folder.id}}">
                                     <input type="checkbox" class="input_checkbox" name="pdf_ids" id="checkbox_{{pdf.id}}"  value="{{pdf.id}}">
                                     <label for="checkbox_{{pdf.id}}" onclick="handleClick('{{ pdf.id }}');" id="label-{{ pdf.id }}">{{pdf.name}}</label>
@@ -391,6 +395,41 @@
         .catch(error => console.error('Error:', error));
     }
 
+    function handleDragOver(event) {
+            event.preventDefault();
+        }
+
+    function handleDrop(event, folderId) {
+        event.preventDefault();
+        const files = event.dataTransfer.files;
+        const formData = new FormData();
+        formData.append('folder_id', folderId);
+
+        for (let i = 0; i < files.length; i++) {
+            formData.append('pdfs_upload', files[i]);
+        }
+
+        fetch(`{% url 'upload_pdfs' category.id section.id group.id %}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.reload(); // 변경 사항을 반영하기 위해 페이지 새로고침
+            } else {
+                alert('PDF 업로드 중 오류 발생: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('PDF 업로드 중 네트워크 오류 발생');
+        });
+    }
+        
 
 
     

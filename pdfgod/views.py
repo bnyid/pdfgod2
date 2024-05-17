@@ -124,18 +124,22 @@ def del_folder(request, category_id, section_id, group_id):
         return redirect('index_with_full_ids', category_id = category_id, section_id = section_id, group_id = group_id)
     
 
+@require_http_methods(["POST"])
 def upload_pdfs(request, category_id, section_id, group_id):
     print('upload_pdfs 함수가 호출되었습니다.')
-    pdf_files = request.FILES.getlist('pdfs_upload')
-    folder_id = request.POST.get('folder_id')
-    if pdf_files:
-        cur_folder = Folder.objects.get(id=folder_id)
+    try:
+        pdf_files = request.FILES.getlist('pdfs_upload')
+        folder_id = request.POST.get('folder_id')
+        if pdf_files:
+            cur_folder = Folder.objects.get(id=folder_id)
 
-        for pdf_file in pdf_files:
-            pdf = Pdf(file=pdf_file, folder=cur_folder)
-            pdf.save()
-            print('pdf가 저장되었습니다.')
-    return redirect('index_with_full_ids', category_id = category_id, section_id = section_id, group_id = group_id)
+            for pdf_file in pdf_files:
+                pdf = Pdf(file=pdf_file, folder=cur_folder)
+                pdf.save()
+                print('pdf가 저장되었습니다.')
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 
 @require_http_methods(["POST"])
