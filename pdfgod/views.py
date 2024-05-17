@@ -33,6 +33,7 @@ def update_folder_memo(request, folder_id):
 def paste_pdfs(request):
     try:
         data = json.loads(request.body)
+        print("views.py의 paste_pdfs 함수로 넘어온 정보 : ", data)
         target_folder_id = data['target_folder_id']
         pdf_ids = data['pdf_ids']
         target_folder = Folder.objects.get(id=target_folder_id)
@@ -114,14 +115,16 @@ def mk_folder(request, category_id, section_id, group_id):
         else:
             return redirect('index')
 
-def del_folder(request, category_id, section_id, group_id):
+def del_folder(request,folder_id):
     print("del_folder 함수가 호출되었습니다.")
-    if request.method == "POST":
+    try:
         print("****************** del_folder의 if == POST문 안으로 들어왔습니다.")        
-        folder_id=request.POST.get('folder_id')
         folder = Folder.objects.get(id=folder_id)
+        folder_name = folder.name
         folder.delete()
-        return redirect('index_with_full_ids', category_id = category_id, section_id = section_id, group_id = group_id)
+        return JsonResponse({'success': True, 'message': f'{folder_name} 폴더가 삭제되었습니다.'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
     
 
 @require_http_methods(["POST"])
