@@ -49,6 +49,7 @@ td.pdfsCell {
 
 td.arrowsCell {
   border: none;
+  padding: 3px; /* 셀 패딩 설정 */
 }
 
 
