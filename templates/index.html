@@ -146,23 +146,29 @@
                         ondragover="handleDragOver(event)"
                         ondragenter="handleDragEnter(event)"
                         ondragleave="handleDragLeave(event)">
-                        {% for pdf in pdfs %}
-                        <tr>
-                            <td class="pdfsCell">
-                                    <input type="hidden" class="input_checkbox" name="folder_id" value="{{folder.id}}">
-                                    <input type="checkbox" class="input_checkbox" name="pdf_ids" id="checkbox_{{pdf.id}}"  value="{{pdf.id}}">
-                                    <label for="checkbox_{{pdf.id}}" onclick="handleClick('{{ pdf.id }}');" id="label-{{ pdf.id }}">{{pdf.name}}</label>
-                                    <input type="text" id="input-{{ pdf.id }}" value="{{ pdf.name }}" style="display: none;" onblur="savePDFName('{{ pdf.id }}');" onkeypress="handleKeyPress(event, '{{ pdf.id }}');">
+                        {% if pdfs %}
+                            {% for pdf in pdfs %}
+                            <tr>
+                                <td class="pdfsCell">
+                                        <input type="hidden" class="input_checkbox" name="folder_id" value="{{folder.id}}">
+                                        <input type="checkbox" class="input_checkbox" name="pdf_ids" id="checkbox_{{pdf.id}}"  value="{{pdf.id}}">
+                                        <label for="checkbox_{{pdf.id}}" onclick="handleClick('{{ pdf.id }}');" id="label-{{ pdf.id }}">{{pdf.name}}</label>
+                                        <input type="text" id="input-{{ pdf.id }}" value="{{ pdf.name }}" style="display: none;" onblur="savePDFName('{{ pdf.id }}');" onkeypress="handleKeyPress(event, '{{ pdf.id }}');">
 
-                                </td>
+                                    </td>
 <!-- 업다운 버튼-->
-                            <td>
-                                <button type="button" onclick="movePDF('{{ pdf.id }}', 'up');">&#8593;</button> <!-- 위로 이동 -->
-                                <button type="button" onclick="movePDF('{{ pdf.id }}', 'down');">&#8595;</button> <!-- 아래로 이동 -->
-                            </td>
-                        </tr>
+                                <td>
+                                    <button type="button" onclick="movePDF('{{ pdf.id }}', 'up');">&#8593;</button> <!-- 위로 이동 -->
+                                    <button type="button" onclick="movePDF('{{ pdf.id }}', 'down');">&#8595;</button> <!-- 아래로 이동 -->
+                                </td>
+                            </tr>
 <!-- 이름 수정 버튼-->
-                        {% endfor %}
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td class="empty-dropzone"></td>
+                        </tr>
+                        {% endif %}
                     </table>
                 </td>
             {% endfor %}

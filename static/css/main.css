@@ -27,6 +27,13 @@ header {
   background-color: #92d1a4; /* 드래그 중일 때 색상 */
 }
 
+.empty-dropzone {
+  height: 150px;
+  border: none; /* 테두리 없음 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
 th, td {
   padding: 3px; /* 셀 패딩 설정 */
@@ -39,6 +46,7 @@ td.pdfsCell {
   text-overflow: ellipsis; /* 넘치는 텍스트를 말줄임표로 표시 */
   max-width: 300px; /* 첫 번째 셀의 최대 너비 설정 */
   border: none; /* 테두리 없음 */
+  min-height: 50px;
 }
 
 td {
