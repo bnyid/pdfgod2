@@ -147,17 +147,22 @@
                         ondragenter="handleDragEnter(event)"
                         ondragleave="handleDragLeave(event)">
                         {% if pdfs %}
+                            <tr class="select_all">
+                                <td colspan="2" class="select_all">
+                                        <input type="checkbox" id="select_all_{{folder.id}}" onclick="toggleSelectAll('{{folder.id}}')">
+                                        <label for="select_all_{{folder.id}}">전체 선택</label>
+                                </td>
+                            </tr>
                             {% for pdf in pdfs %}
-                            <tr>
-                                <td class="pdfsCell">
+                            <tr class="pdfscells">
+                                <td class="pdfscell">
                                         <input type="hidden" class="input_checkbox" name="folder_id" value="{{folder.id}}">
-                                        <input type="checkbox" class="input_checkbox" name="pdf_ids" id="checkbox_{{pdf.id}}"  value="{{pdf.id}}">
+                                        <input type="checkbox" class="input_checkbox pdf_checkbox_{{folder.id}}" name="pdf_ids" id="checkbox_{{pdf.id}}" value="{{pdf.id}}">      <!-- 공백으로 구분해서 클래스를 두개 지정할 수 있음-->
                                         <label for="checkbox_{{pdf.id}}" onclick="handleClick('{{ pdf.id }}');" id="label-{{ pdf.id }}">{{pdf.name}}</label>
                                         <input type="text" id="input-{{ pdf.id }}" value="{{ pdf.name }}" style="display: none;" onblur="savePDFName('{{ pdf.id }}');" onkeypress="handleKeyPress(event, '{{ pdf.id }}');">
-
-                                    </td>
+                                </td>
 <!-- 업다운 버튼-->
-                                <td class = arrowsCell>
+                                <td class = arrowscell>
                                     <button type="button" onclick="movePDF('{{ pdf.id }}', 'up');">&#8593;</button> <!-- 위로 이동 -->
                                     <button type="button" onclick="movePDF('{{ pdf.id }}', 'down');">&#8595;</button> <!-- 아래로 이동 -->
                                 </td>
@@ -456,6 +461,15 @@
         });
     }
         
+//체크박스 전체 선택
+    function toggleSelectAll(folderId) {
+        const selectAllCheckbox = document.getElementById(`select_all_${folderId}`);
+        const checkboxes = document.querySelectorAll(`.pdf_checkbox_${folderId}`);
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = selectAllCheckbox.checked;
+        });
+}
+
 
 
     

@@ -33,21 +33,31 @@ header {
   justify-content: center;
 }
 
+
+table {
+  font-size: 18px; /* 글씨 크기를 조절합니다. 원하는 크기로 설정할 수 있습니다 */
+}
+
+
 th, td {
-  padding: 3px; /* 셀 패딩 설정 */
+  padding: 5px; /* 셀 패딩 설정 */
   border: 1px solid #ccc; /* 셀 테두리 설정 */
 }
 
-td.pdfsCell {
+td.pdfscell {
   white-space: nowrap; /* 셀 내용을 줄 바꿈 없이 한 줄에 표시 */
   overflow: hidden; /* 내용이 넘치면 숨김 */
   text-overflow: ellipsis; /* 넘치는 텍스트를 말줄임표로 표시 */
+  height: 30px;
   max-width: 300px; /* 첫 번째 셀의 최대 너비 설정 */
   border: none; /* 테두리 없음 */
   min-height: 50px;
+  margin: 10px;;
 }
 
-td.arrowsCell {
+
+
+td.arrowscell {
   border: none;
   padding: 3px; /* 셀 패딩 설정 */
 }
@@ -58,3 +68,11 @@ td {
   vertical-align: top; /* 셀의 내용을 위로 정렬 */
 
 }
+
+td.select_all {
+  border-bottom: 1px solid black; /* 아래쪽 선을 나타냅니다 */
+  border-top: none; /* 위쪽 선을 숨깁니다 */
+  border-left: none; /* 왼쪽 선을 숨깁니다 */
+  border-right: none; /* 오른쪽 선을 숨깁니다 */
+}
+
