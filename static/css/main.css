@@ -13,9 +13,7 @@ header {
 }
 
 /* 이 클래스를 가진 테이블의 모든 테두리를 제거 */
-.no-border, .no-border th, .no-border td {
-  border: none; /* 테두리 없음 */
-}
+
 
 .dropzone {
   transition: background-color 0.3s ease;
@@ -48,6 +46,11 @@ td.pdfsCell {
   border: none; /* 테두리 없음 */
   min-height: 50px;
 }
+
+td.arrowsCell {
+  border: none;
+}
+
 
 td {
   min-width: 50px; /* 모든 셀의 최소 너비 설정 */
