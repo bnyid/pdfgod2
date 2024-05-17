@@ -63,7 +63,7 @@ td.arrowscell {
 
 
 td {
-  min-width: 40px; /* 모든 셀의 최소 너비 설정 */
+  min-width: 50px; /* 모든 셀의 최소 너비 설정 */
   vertical-align: top; /* 셀의 내용을 위로 정렬 */
 }
 
