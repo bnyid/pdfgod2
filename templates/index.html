@@ -139,14 +139,16 @@
                 {% csrf_token %}
                 {% for folder, pdfs in folders_with_pdfs %}
                 <td>
-                    <table class="no-border">
+                    <table 
+                        data-folder-id="{{ folder.id }}"
+                        class="dropzone"
+                        ondrop="handleDrop(event, '{{ folder.id }}')"
+                        ondragover="handleDragOver(event)"
+                        ondragenter="handleDragEnter(event)"
+                        ondragleave="handleDragLeave(event)">
                         {% for pdf in pdfs %}
                         <tr>
-                            <td 
-                                data-folder-id="{{ folder.id }}"
-                                class="dropzone"
-                                ondrop="handleDrop(event, '{{ folder.id }}')"
-                                ondragover="handleDragOver(event)">
+                            <td class="pdfsCell">
                                     <input type="hidden" class="input_checkbox" name="folder_id" value="{{folder.id}}">
                                     <input type="checkbox" class="input_checkbox" name="pdf_ids" id="checkbox_{{pdf.id}}"  value="{{pdf.id}}">
                                     <label for="checkbox_{{pdf.id}}" onclick="handleClick('{{ pdf.id }}');" id="label-{{ pdf.id }}">{{pdf.name}}</label>
@@ -396,11 +398,29 @@
     }
 
     function handleDragOver(event) {
-            event.preventDefault();
+        event.preventDefault(); //브라우저의 기본 드래그앤 드랍 동작(=인쇄하면으로 넘어가는것)을 방지함
+        console.log("드래그오버중")
+    }
+
+    function handleDragEnter(event) {
+        event.preventDefault();
+        event.currentTarget.classList.add('dragover'); // 브라우저에 처음 들어오면 dragover 클래스를 추가함?
+        console.log("드래그엔터")
+    }
+
+    function handleDragLeave(event) {
+        // 이벤트 대상이 드랍존을 떠났을 때만 클래스를 제거
+        if (event.relatedTarget && event.currentTarget.contains(event.relatedTarget)) {
+            return;
         }
+        event.currentTarget.classList.remove('dragover');
+        console.log("드래그오버떠남");
+    }
 
     function handleDrop(event, folderId) {
         event.preventDefault();
+        event.currentTarget.classList.remove('dragover');
+
         const files = event.dataTransfer.files;
         const formData = new FormData();
         formData.append('folder_id', folderId);
