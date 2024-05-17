@@ -128,9 +128,9 @@
             <tr>
                 {% for folder in group.folders.all %}
                 <td>
-                    <input type="file" class="upload_pdfs" name="pdfs_upload" required multiple>
-                    <input type="hidden" class="upload_pdfs" name="folder_id" value="{{folder.id}}">
-                    <button type="submit" data-url="{% url 'upload_pdfs' category.id section.id group.id %}" onclick="submitForm('tableForm', 'upload_pdfs', this.getAttribute('data-url'), '{{ folder.id }}'); return false;">Upload</button>
+                    <input type="file" class="directUpload_pdfs" name="pdfs_upload" required multiple>
+                    <input type="hidden" class="directUpload_pdfs" name="folder_id" value="{{folder.id}}">
+                    <button type="submit" data-url="{% url 'directUpload_pdfs' category.id section.id group.id %}" onclick="submitForm('tableForm', 'directUpload_pdfs', this.getAttribute('data-url'), '{{ folder.id }}'); return false;">Upload</button>
                 </td>
                 {% endfor %}
             </tr>

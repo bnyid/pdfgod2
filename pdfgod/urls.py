@@ -30,6 +30,7 @@ urlpatterns = [
 
     # pdf
     path("upload_pdfs/<int:category_id>/<int:section_id>/<int:group_id>", upload_pdfs, name='upload_pdfs'),
+    path("directUpload_pdfs/<int:category_id>/<int:section_id>/<int:group_id>", directUpload_pdfs, name='directUpload_pdfs'),
     path("del_pdfs/", del_pdfs, name= 'del_pdfs'),
     path("move_pdf/", move_pdf, name= 'move_pdf'),
     path("merge_pdfs/",merge_pdfs, name = 'merge_pdfs'),
