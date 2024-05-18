@@ -135,7 +135,6 @@
             </tr>
             <tr>
 <!-- pdfs&체크박스 -->
-                {% csrf_token %}
                 {% for folder, pdfs in folders_with_pdfs %}
                 <td>
                     <table 
@@ -154,12 +153,11 @@
                             </tr>
                             {% for pdf in pdfs %} 
                             <tr class="pdfscells">
-                                <td class="pdfscell" data-pdf-id="{{pdf.id}}" onclick="toggleCheckbox(this.getAttribute('data-pdf-id'))">
+                                {% csrf_token %}
+                                <td class="pdfscell" onclick="toggleCheckbox('{{pdf.id}}')">
                                         <input type="hidden" class="input_checkbox" name="folder_id" value="{{folder.id}}">
-                                        
-                                        <input type="checkbox" class="input_checkbox pdf_checkbox_{{folder.id}}" name="pdf_ids" id="checkbox_{{pdf.id}}" value="{{pdf.id}}">      <!-- 공백으로 구분해서 클래스를 두개 지정할 수 있음-->
+                                        <input type="checkbox" class="input_checkbox pdf_checkbox_{{folder.id}}" name="pdf_ids" id="checkbox_{{pdf.id}}" value="{{pdf.id}}">      
                                         <label for="checkbox_{{pdf.id}}" onclick="handleClick('{{ pdf.id }}');" id="label-{{ pdf.id }}">{{pdf.name}}</label>
-                                        
                                         <input type="text" id="input-{{ pdf.id }}" value="{{ pdf.name }}" style="display: none;" onblur="savePDFName('{{ pdf.id }}');" onkeypress="handleKeyPress(event, '{{ pdf.id }}');">
                                 </td>
 <!-- 업다운 버튼-->
@@ -185,10 +183,6 @@
     </form>
 
 {% endif %}
-        
-
-
-
-
+    
 </body>
 </html>

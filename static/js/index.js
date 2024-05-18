@@ -21,6 +21,10 @@ function getCookie(name) {
 }
 
 
+
+
+
+
 function submitForm(form_id, inputClass, actionUrl, folder_id) {
     var form = document.getElementById(form_id); // 현재 선택된 form 속성에 접근
     form.action = actionUrl; // action을 제출된 URL로 설정
@@ -143,7 +147,7 @@ document.querySelectorAll('.editable-memo').forEach(element => {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
+                'X-CSRFToken': getCookie('csrftoken')
             },
             body: JSON.stringify({ memo: newMemo })
         })
@@ -248,11 +252,16 @@ function savePDFName(pdfId) {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
+            'X-CSRFToken': getCookie('csrftoken'),
         },
         body: JSON.stringify({ name: newName })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => { throw new Error(text) });
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             var label = document.getElementById('label-' + pdfId);
@@ -263,18 +272,26 @@ function savePDFName(pdfId) {
             alert('Error: ' + data.error);
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error: ' + error.message);
+    });
 }
+
+
 
 function handleDragOver(event) {
     event.preventDefault(); //브라우저의 기본 드래그앤 드랍 동작(=인쇄하면으로 넘어가는것)을 방지함
-    console.log("드래그오버중")
 }
 
 function handleDragEnter(event) {
     event.preventDefault();
     event.currentTarget.classList.add('dragover'); // 브라우저에 처음 들어오면 dragover 클래스를 추가함?
-    console.log("드래그엔터")
+    /* 
+    event.currentTarget은 이벤트가 현재 처리되고 있는 요소를 가리킴
+    .classList.add('dragover')는 currentTarget 요소에 'dragover'라는 CSS 클래스를 부여함
+    index.css 에 dragover의 색깔을 변경해놓았으므로, 색깔이 변경될것임
+    */
 }
 
 function handleDragLeave(event) {
@@ -282,33 +299,32 @@ function handleDragLeave(event) {
     if (event.relatedTarget && event.currentTarget.contains(event.relatedTarget)) {
         return;
     }
-    event.currentTarget.classList.remove('dragover');
-    console.log("드래그오버떠남");
+    event.currentTarget.classList.remove('dragover'); //드랍존의 dragover 클래스를 제거
 }
 
 function handleDrop(event, folderId) {
     event.preventDefault();
     event.currentTarget.classList.remove('dragover');
 
-    const files = event.dataTransfer.files;
-    const formData = new FormData();
-    formData.append('folder_id', folderId);
+    const files = event.dataTransfer.files; // 드랍된 파일들
+    const formData = new FormData(); // FormData 객체 생성
+    formData.append('folder_id', folderId); // 폴더 ID를 FormData에 추가
 
     for (let i = 0; i < files.length; i++) {
-        formData.append('pdfs_upload', files[i]);
+        formData.append('pdfs_upload', files[i]); // 각 파일을 FormData에 추가
     }
 
-    fetch(`{% url 'upload_pdfs' category.id section.id group.id %}`, {
+    fetch(`/upload_pdfs/${folderId}/`, { // URL에 folderId 포함
         method: 'POST',
         headers: {
-            'X-CSRFToken': '{{ csrf_token }}'
+            'X-CSRFToken': getCookie('csrftoken'), // CSRF 토큰을 헤더에 포함
         },
-        body: formData
+        body: formData // FormData를 요청 본문에 포함
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            window.location.reload(); // 변경 사항을 반영하기 위해 페이지 새로고침
+            window.location.reload(); // 업로드 성공 시 페이지 새로고침
         } else {
             alert('PDF 업로드 중 오류 발생: ' + data.error);
         }
@@ -332,3 +348,4 @@ function toggleCheckbox(pdfId) {
     var checkbox = document.getElementById('checkbox_' + pdfId);
     checkbox.checked = !checkbox.checked;
 }
+

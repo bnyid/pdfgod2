@@ -7,9 +7,11 @@ from reportlab.pdfbase.ttfonts import TTFont, pdfmetrics
 
 from django.utils.safestring import mark_safe
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
+
 from .models import *
 from .forms import *
 
@@ -128,16 +130,15 @@ def del_folder(request,folder_id):
     
 
 @require_http_methods(["POST"])
-def upload_pdfs(request, category_id, section_id, group_id):
+def upload_pdfs(request, folder_id):
     print('upload_pdfs 함수가 호출되었습니다.')
     try:
         pdf_files = request.FILES.getlist('pdfs_upload')
-        folder_id = request.POST.get('folder_id')
         if pdf_files:
-            cur_folder = Folder.objects.get(id=folder_id)
+            folderToUpload = Folder.objects.get(id=folder_id)
 
             for pdf_file in pdf_files:
-                pdf = Pdf(file=pdf_file, folder=cur_folder)
+                pdf = Pdf(file=pdf_file, folder=folderToUpload)
                 pdf.save()
                 print('pdf가 저장되었습니다.')
         return JsonResponse({'success': True})
@@ -377,7 +378,7 @@ def add_text_to_pdf(pdf_path, text):
 
 
 
-
+@csrf_exempt  # 디버깅 목적으로 CSRF 예외 처리
 @require_http_methods(["POST"])
 def update_pdf_name(request, pdf_id):
     print("pdf이름 업로드 함수가 호출되었씁니다")
@@ -392,3 +393,7 @@ def update_pdf_name(request, pdf_id):
         return JsonResponse({'success': False, 'error': 'PDF not found'})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+    
+
+
+
