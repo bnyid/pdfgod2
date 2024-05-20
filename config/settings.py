@@ -39,21 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pdfgod',
     'wordgod',
-    'channels',
 ]
 
-ASGI_APPLICATION = 'config.asgi.application'
-
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [
-                ('43.201.213.80', 6379),
-                ('127.0.0.1', 6379),
-            ],
-    },
-}
 
 
 MIDDLEWARE = [
