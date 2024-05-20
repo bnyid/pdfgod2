@@ -22,6 +22,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('', include("pdfgod.urls")),
+    path('word/', include("wordgod.urls")),
     path('admin/', admin.site.urls),
 ]
 
