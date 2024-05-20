@@ -5,5 +5,5 @@ class TextInputForm(forms.Form):
 
 
 class ExcelUploadForm(forms.Form):
-    file = forms.FileField(label='Upload Excel File')
+    file = forms.FileField(label='엑셀 파일 업로드')
     

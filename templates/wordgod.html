@@ -7,14 +7,18 @@
     <h1>Excel to Speech</h1>
     <form method="post" enctype="multipart/form-data" action="{% url 'for_study' %}">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Upload and Convert (Study)</button>
+        {{ form }}
+        <button type="submit">학습용 MP3 생성</button>
     </form>
     
+    <br>
+    <br>
+
+
     <form method="post" enctype="multipart/form-data" action="{% url 'for_exam' %}">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Upload and Convert (Exam)</button>
+        {{ form }}
+    <button type="submit">시험용 MP3 생성</button>
     </form>
 
 
