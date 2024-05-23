@@ -74,10 +74,26 @@ def for_study(request):
             excel_file = request.FILES['file']
             df = pd.read_excel(excel_file, header=None)
             df.columns = ['Word', 'Meaning']
-            # 업로드된 엑셀 파일을 읽어 데이터프레임으로 변환하고, 열 이름을 지정합니다.
+                # 업로드된 엑셀 파일을 읽어 데이터프레임으로 변환하고, 열 이름을 지정합니다.
 
-            combined_audio = AudioSegment.empty()
-            # 빈 오디오 시퀀스를 초기화합니다.
+            combined_audio = AudioSegment.silent(duration=3000)  # 3초의 침묵
+
+            # SSML을 사용하여 로고 메시지를 부드럽게 읽도록 설정
+            logo_message_text = """
+            <speak>
+                <prosody rate="1.5" pitch="-2st">
+                    <say-as interpret-as="characters">B&Y</say-as>
+                </prosody>
+            </speak>
+            """
+
+            logo_message = ssml_text_to_speech(logo_message_text, language_code='en-US', voice_name='en-US-Wavenet-D')
+            combined_audio += logo_message
+
+            # 일반적인 목소리로 "English Word test" 추가
+            intro_message = text_to_speech_with_google("Word Practice", language_code='en-US', voice_name='en-US-Wavenet-D')
+            combined_audio += intro_message
+            combined_audio += AudioSegment.silent(duration=3000)  # 3초의 침묵 추가
 
             for index, row in df.iterrows():
                 word = row['Word']
