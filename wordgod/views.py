@@ -76,7 +76,7 @@ def for_study(request):
             df.columns = ['Word', 'Meaning']
                 # 업로드된 엑셀 파일을 읽어 데이터프레임으로 변환하고, 열 이름을 지정합니다.
 
-            combined_audio = AudioSegment.silent(duration=3000)  # 3초의 침묵
+            combined_audio = AudioSegment.silent(duration=1500)  # 3초의 침묵
 
             # SSML을 사용하여 로고 메시지를 부드럽게 읽도록 설정
             logo_message_text = """
@@ -93,7 +93,7 @@ def for_study(request):
             # 일반적인 목소리로 "English Word test" 추가
             intro_message = text_to_speech_with_google("Word Practice", language_code='en-US', voice_name='en-US-Wavenet-D')
             combined_audio += intro_message
-            combined_audio += AudioSegment.silent(duration=3000)  # 3초의 침묵 추가
+            combined_audio += AudioSegment.silent(duration=2500)  # 3초의 침묵 추가
 
             for index, row in df.iterrows():
                 word = row['Word']
@@ -144,7 +144,7 @@ def for_exam(request):
             df = pd.read_excel(excel_file, header=None)
             df.columns = ['Word', 'Meaning']
 
-            combined_audio = AudioSegment.silent(duration=3000)  # 3초의 침묵
+            combined_audio = AudioSegment.silent(duration=1500)  # 3초의 침묵
 
             # SSML을 사용하여 로고 메시지를 부드럽게 읽도록 설정
             logo_message_text = """
@@ -159,14 +159,14 @@ def for_exam(request):
             combined_audio += logo_message
 
             # 일반적인 목소리로 "English Word test" 추가
-            intro_message = text_to_speech_with_google("English Word test", language_code='en-US', voice_name='en-US-Wavenet-D')
+            intro_message = text_to_speech_with_google("Word test", language_code='en-US', voice_name='en-US-Wavenet-D')
             combined_audio += intro_message
-            combined_audio += AudioSegment.silent(duration=3000)  # 3초의 침묵 추가
+            combined_audio += AudioSegment.silent(duration=2000)  # 3초의 침묵 추가
 
             # 일반적인 목소리로 "시험을 시작합니다" 추가
             start_message = text_to_speech_with_google("시험을 시작합니다", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
             combined_audio += start_message
-            combined_audio += AudioSegment.silent(duration=3000)  # 3초의 침묵 추가
+            combined_audio += AudioSegment.silent(duration=2000)  # 3초의 침묵 추가
 
             for index, row in df.iterrows():
                 word = row['Word']
