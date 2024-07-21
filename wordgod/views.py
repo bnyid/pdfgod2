@@ -167,7 +167,7 @@ def for_exam(request):
             # 일반적인 목소리로 "시험을 시작합니다" 추가
             start_message = text_to_speech_with_google("시험을 시작합니다", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
             combined_audio += start_message
-            combined_audio += AudioSegment.silent(duration=800)  # 1초의 침묵 추가
+            combined_audio += AudioSegment.silent(duration=1300)  # 1초의 침묵 추가
 
             # "띵동" 소리 추가
             dingdong_path = os.path.join(settings.BASE_DIR, 'static', 'sound', 'dingdong.mp3')
@@ -183,7 +183,7 @@ def for_exam(request):
                 # 문제 번호를 읽어주는 부분 추가
                 question_number_audio = text_to_speech_with_google(f"{question_number}번", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
                 combined_audio += question_number_audio
-                combined_audio += AudioSegment.silent(duration=1300)
+                combined_audio += AudioSegment.silent(duration=1400)
 
                 for i in range(2):
                     audio_segment = text_to_speech_with_google(word, language_code='en-US', voice_name='en-US-Wavenet-D')
