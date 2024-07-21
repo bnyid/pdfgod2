@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.conf import settings
 from django.http import HttpResponse
 from .forms import ExcelUploadForm
 from google.cloud import texttospeech
@@ -161,24 +162,38 @@ def for_exam(request):
             # 일반적인 목소리로 "English Word test" 추가
             intro_message = text_to_speech_with_google("Word test", language_code='en-US', voice_name='en-US-Wavenet-D')
             combined_audio += intro_message
-            combined_audio += AudioSegment.silent(duration=2000)  # 3초의 침묵 추가
+            combined_audio += AudioSegment.silent(duration=2000)  # 2초의 침묵 추가
 
             # 일반적인 목소리로 "시험을 시작합니다" 추가
             start_message = text_to_speech_with_google("시험을 시작합니다", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
             combined_audio += start_message
-            combined_audio += AudioSegment.silent(duration=2000)  # 3초의 침묵 추가
+            combined_audio += AudioSegment.silent(duration=800)  # 1초의 침묵 추가
+
+            # "띵동" 소리 추가
+            dingdong_path = os.path.join(settings.BASE_DIR, 'static', 'sound', 'dingdong.mp3')
+            dingdong_sound = AudioSegment.from_file(dingdong_path, format="mp3")
+            combined_audio += dingdong_sound
+            combined_audio += AudioSegment.silent(duration=1500)  # 3초의 침묵 추가
+
 
             for index, row in df.iterrows():
                 word = row['Word']
-                
+                question_number = index + 1
+
+                # 문제 번호를 읽어주는 부분 추가
+                question_number_audio = text_to_speech_with_google(f"{question_number}번", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
+                combined_audio += question_number_audio
+                combined_audio += AudioSegment.silent(duration=1300)
+
                 for i in range(2):
                     audio_segment = text_to_speech_with_google(word, language_code='en-US', voice_name='en-US-Wavenet-D')
                     combined_audio += audio_segment
+                    combined_audio += AudioSegment.silent(duration=150)
                     if i == 0:
                         combined_audio += AudioSegment.silent(duration=800)
 
                 combined_audio += AudioSegment.silent(duration=9000)
-            
+
             output_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3").name
             combined_audio.export(output_path, format="mp3")
         
