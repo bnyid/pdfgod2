@@ -145,6 +145,8 @@ def for_exam(request):
             df = pd.read_excel(excel_file, header=None)
             df.columns = ['Word', 'Meaning']
 
+            total_words_count = len(df)
+
             combined_audio = AudioSegment.silent(duration=1500)  # 3초의 침묵
 
             # SSML을 사용하여 로고 메시지를 부드럽게 읽도록 설정
@@ -156,13 +158,20 @@ def for_exam(request):
             </speak>
             """
 
+
+
             logo_message = ssml_text_to_speech(logo_message_text, language_code='en-US', voice_name='en-US-Wavenet-D')
             combined_audio += logo_message
 
-            # 일반적인 목소리로 "English Word test" 추가
+            # 일반적인 목소리로 "Word test" 추가
             intro_message = text_to_speech_with_google("Word test", language_code='en-US', voice_name='en-US-Wavenet-D')
             combined_audio += intro_message
             combined_audio += AudioSegment.silent(duration=2000)  # 2초의 침묵 추가
+
+            # "시험은 총 {n}개 출제됩니다." 추가
+            total_message = text_to_speech_with_google(f"시험은 총 {total_words_count}개 출제됩니다.", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
+            combined_audio += total_message
+            combined_audio += AudioSegment.silent(duration=1000)  # 1.5초의 침묵 추가
 
             # 일반적인 목소리로 "시험을 시작합니다" 추가
             start_message = text_to_speech_with_google("시험을 시작합니다", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
@@ -192,7 +201,13 @@ def for_exam(request):
                     if i == 0:
                         combined_audio += AudioSegment.silent(duration=800)
 
-                combined_audio += AudioSegment.silent(duration=9000)
+                combined_audio += AudioSegment.silent(duration=3000)
+            
+            # "띵동" 소리 추가
+            dingdong_path = os.path.join(settings.BASE_DIR, 'static', 'sound', 'dingdong.mp3')
+            dingdong_sound = AudioSegment.from_file(dingdong_path, format="mp3")
+            combined_audio += dingdong_sound
+            combined_audio += AudioSegment.silent(duration=1500)  # 3초의 침묵 추가
 
             output_path = tempfile.NamedTemporaryFile(delete=False, suffix=".mp3").name
             combined_audio.export(output_path, format="mp3")
