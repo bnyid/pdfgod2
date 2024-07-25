@@ -150,7 +150,7 @@ def for_exam(request):
             combined_audio += intro_message
             combined_audio += AudioSegment.silent(duration=2000)
 
-            start_message = text_to_speech_with_google(f"총 {total_words_count}단어 시험을 시작합니다", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
+            start_message = text_to_speech_with_google(f"총 {total_words_count}개의 단어 시험을 시작합니다", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
             combined_audio += start_message
             combined_audio += AudioSegment.silent(duration=1300)
 
