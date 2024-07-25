@@ -1,22 +1,15 @@
 from django.shortcuts import render
 from django.conf import settings
 from django.http import HttpResponse
-from .forms import ExcelUploadForm
 from google.cloud import texttospeech
 from pydub import AudioSegment
 import pandas as pd
 import tempfile
 import os, io
-import urllib.parse
 import zipfile
 
 def wordgod_view(request):
-    form = ExcelUploadForm()
-    return render(request, 'wordgod.html', {'form': form})
-
-
-from google.cloud import texttospeech
-import io
+    return render(request, 'wordgod.html')
 
 def ssml_text_to_speech(ssml_text, language_code, voice_name):
     client = texttospeech.TextToSpeechClient()
@@ -33,42 +26,25 @@ def ssml_text_to_speech(ssml_text, language_code, voice_name):
     )
     return AudioSegment.from_file(io.BytesIO(response.audio_content), format="mp3")
 
-
-
 def text_to_speech_with_google(text, language_code, voice_name, output_format="mp3"):
     client = texttospeech.TextToSpeechClient()
-    # Google Cloud Text-to-Speech 클라이언트를 초기화합니다.
-
     input_text = texttospeech.SynthesisInput(text=text)
-    # 변환할 텍스트를 입력으로 설정합니다.
-
     voice = texttospeech.VoiceSelectionParams(
         language_code=language_code,
         name=voice_name
     )
-    # 음성 합성을 위한 언어 코드와 음성 유형을 설정합니다.
-
     audio_config = texttospeech.AudioConfig(
         audio_encoding=texttospeech.AudioEncoding.MP3
     )
-    # 오디오 출력 형식을 MP3로 설정합니다.
-
     response = client.synthesize_speech(
         input=input_text, voice=voice, audio_config=audio_config
     )
-    # 입력 텍스트와 설정된 음성 파라미터를 사용하여 음성을 합성합니다.
-
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp_file:
         temp_file_path = temp_file.name
         temp_file.write(response.audio_content)
-        # 합성된 음성 데이터를 임시 파일에 저장합니다.
-
     audio_segment = AudioSegment.from_file(temp_file_path, format=output_format)
     os.remove(temp_file_path)
-    # 임시 파일에서 오디오 데이터를 읽어오고, 임시 파일을 삭제합니다.
-
     return audio_segment
-    # 오디오 데이터를 반환합니다.
 
 def for_study(request):
     if request.method == 'POST':
@@ -120,10 +96,11 @@ def for_study(request):
 
         with open(zip_path, 'rb') as f:
             response = HttpResponse(f.read(), content_type='application/zip')
-            response['Content-Disposition'] = 'attachment; filename="output_학습용.zip"'
+            response['Content-Disposition'] = 'attachment; filename="study_files.zip"'
             os.remove(zip_path)
             return response
     return render(request, 'wordgod.html')
+
 
 
 def for_exam(request):
@@ -150,7 +127,11 @@ def for_exam(request):
             combined_audio += intro_message
             combined_audio += AudioSegment.silent(duration=2000)
 
-            start_message = text_to_speech_with_google(f"총 {total_words_count}단어 시험을 시작합니다", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
+            total_message = text_to_speech_with_google(f"총 {total_words_count}단어가 출제됩니다.", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
+            combined_audio += total_message
+            combined_audio += AudioSegment.silent(duration=1000)
+
+            start_message = text_to_speech_with_google("시험을 시작합니다", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
             combined_audio += start_message
             combined_audio += AudioSegment.silent(duration=1300)
 
@@ -188,7 +169,8 @@ def for_exam(request):
 
         with open(zip_path, 'rb') as f:
             response = HttpResponse(f.read(), content_type='application/zip')
-            response['Content-Disposition'] = 'attachment; filename="output_시험용.zip"'
+            response['Content-Disposition'] = 'attachment; filename="output_tests.zip"'
             os.remove(zip_path)
             return response
     return render(request, 'wordgod.html')
+           
