@@ -73,9 +73,8 @@ def for_study(request):
         form = ExcelUploadForm(request.POST, request.FILES)
         if form.is_valid():
             excel_file = request.FILES['file']
-            df = pd.read_excel(excel_file, header=None)
+            df = pd.read_excel(excel_file, header=None) # header = 0 으로하면 1행은 헤더열로 봄 None은 1행부터 데이터시작
             df.columns = ['Word', 'Meaning']
-                # 업로드된 엑셀 파일을 읽어 데이터프레임으로 변환하고, 열 이름을 지정합니다.
 
             combined_audio = AudioSegment.silent(duration=1500)  # 3초의 침묵
 
