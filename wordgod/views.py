@@ -101,12 +101,13 @@ def for_study(request):
             '''
             
             
-            logo_message = ssml_text_to_speech(logo_message_text, language_code='en-US', voice_name='en-US-Wavenet-D')
+            logo_message = text_to_speech_with_google("B&Y, Word Practice", language_code='en-US', voice_name='en-US-Neural2-D')
             combined_audio += logo_message
-
-            intro_message = text_to_speech_with_google("Word practice", language_code='en-US', voice_name='en-US-Wavenet-D')
+            '''
+            intro_message = text_to_speech_with_google("Word practice", language_code='en-US', voice_name='en-US-Neural2-D')
             combined_audio += intro_message
             combined_audio += AudioSegment.silent(duration=500)
+            '''
 
             file_name = os.path.splitext(excel_file.name)[0]
             match = re.search(r'\(([^)]+)\)', file_name)
@@ -143,11 +144,16 @@ def for_study(request):
             for index, row in df.iterrows():
                 word_number = row['Number']  # 1열의 단어 번호
                 word = row['Word']
+                modified_word = word.replace('-ing', 'I.N.G').replace(' A ', ',A ')
+                
+                
+                print(modified_word)
                 question_number_audio = text_to_speech_with_google(f"{word_number}번", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
                 combined_audio += question_number_audio
                 combined_audio += AudioSegment.silent(duration=1000)
                 for i in range(2):
-                    audio_segment = text_to_speech_with_google(word, language_code='en-US', voice_name='en-US-Wavenet-D')
+                    audio_segment = text_to_speech_with_google(modified_word, language_code='en-US', voice_name='en-US-Neural2-G')
+                    #audio_segment = text_to_speech_with_google(modified_word, language_code='en-US', voice_name='en-US-Studio-O')
                     combined_audio += audio_segment
                     combined_audio += AudioSegment.silent(duration=900)
                     #if i == 0:
@@ -194,11 +200,14 @@ def for_exam(request):
                 </prosody>
             </speak>
             """
-            logo_message = ssml_text_to_speech(logo_message_text, language_code='en-US', voice_name='en-US-Wavenet-D')
+            logo_message = text_to_speech_with_google("B&Y, Word Test", language_code='en-US', voice_name='en-US-Neural2-D')
             combined_audio += logo_message
 
+            '''
             intro_message = text_to_speech_with_google("Word test", language_code='en-US', voice_name='en-US-Wavenet-D')
             combined_audio += intro_message
+            '''
+            
             combined_audio += AudioSegment.silent(duration=2000)
 
             start_message = text_to_speech_with_google(f"총 {total_words_count}개의 단어 시험을 시작합니다", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
@@ -212,18 +221,23 @@ def for_exam(request):
 
             for index, row in df.iterrows():
                 word = row['Word']
+                modified_word = word.replace('-ing', 'I.N.G').replace(' A ', ',A ')
+
+                
                 question_number = index + 1
+                
+
                 question_number_audio = text_to_speech_with_google(f"{question_number}번", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
                 combined_audio += question_number_audio
                 combined_audio += AudioSegment.silent(duration=1400)
                 for i in range(2):
-                    audio_segment = text_to_speech_with_google(word, language_code='en-US', voice_name='en-US-Wavenet-D')
+                    audio_segment = text_to_speech_with_google(modified_word, language_code='en-US', voice_name='en-US-Neural2-G')
                     combined_audio += audio_segment
                     combined_audio += AudioSegment.silent(duration=150)
                     if i == 0:
                         combined_audio += AudioSegment.silent(duration=800)
                 
-                combined_audio += AudioSegment.silent(duration=7500)
+                combined_audio += AudioSegment.silent(duration=6500)
             combined_audio += dingdong_sound
             combined_audio += AudioSegment.silent(duration=1500)
 
