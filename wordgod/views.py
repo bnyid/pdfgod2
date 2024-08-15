@@ -150,12 +150,12 @@ def for_study(request):
                 print(modified_word)
                 question_number_audio = text_to_speech_with_google(f"{word_number}번", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
                 combined_audio += question_number_audio
-                combined_audio += AudioSegment.silent(duration=1000)
+                combined_audio += AudioSegment.silent(duration=300)
                 for i in range(2):
                     audio_segment = text_to_speech_with_google(modified_word, language_code='en-US', voice_name='en-US-Neural2-G')
                     #audio_segment = text_to_speech_with_google(modified_word, language_code='en-US', voice_name='en-US-Studio-O')
                     combined_audio += audio_segment
-                    combined_audio += AudioSegment.silent(duration=900)
+                    combined_audio += AudioSegment.silent(duration=400)
                     #if i == 0:
                      #   combined_audio += AudioSegment.silent(duration=500)
                 
