@@ -1,8 +1,15 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Excel to Speech</title>
 </head>
+
+<h2> 엑셀 형식은 아래와 같이 해야합니다.</h2>
+
+<img src="{% static 'images/엑셀_MP3제작용_서식_안내.png' %}">
+
+
 <body>
     <h1>Excel to Speech</h1>
     <form method="post" enctype="multipart/form-data" action="{% url 'for_study' %}">
@@ -12,6 +19,13 @@
         <button type="submit">학습용 MP3 생성</button>
     </form>
     
+    <ul><h2>주의! <mark>"학습용"</mark>의 경우 파일명에 <mark>괄호()</mark>를 넣으면 MP3가 처음 시작할 때 <mark>읽어줍니다.</mark></h2>
+        <li>ex) 파일명을 <u>"송현1 교과서 단어 1과<mark>(day 1)</mark>"</u>로 하면 -> MP3가 시작되고 "B&Y Word Practice, <mark>Day 1</mark>" 이렇게 읽어줄겁니다. </li>
+        <br>
+        <li>괄호가 없으면 B&Y Word Practice만 읽어주고 단어가 시작됩니다.</li>        
+    </ul>
+    
+
     <br>
     <br>
 
