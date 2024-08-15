@@ -164,7 +164,7 @@ def for_study(request):
             combined_audio += AudioSegment.silent(duration=1500)
 
             base_filename = os.path.splitext(excel_file.name)[0]
-            output_path = os.path.join(tempfile.gettempdir(), f"{base_filename}_시험용.mp3")
+            output_path = os.path.join(tempfile.gettempdir(), f"{base_filename}_학습용.mp3")
             combined_audio.export(output_path, format="mp3")
             mp3_files.append(output_path)
 
@@ -176,7 +176,7 @@ def for_study(request):
 
         with open(zip_path, 'rb') as f:
             response = HttpResponse(f.read(), content_type='application/zip')
-            response['Content-Disposition'] = 'attachment; filename="output_시험용.zip"'
+            response['Content-Disposition'] = 'attachment; filename="output_학습용.zip"'
             os.remove(zip_path)
             return response
     return render(request, 'wordgod.html')
@@ -254,7 +254,7 @@ def for_exam(request):
 
         with open(zip_path, 'rb') as f:
             response = HttpResponse(f.read(), content_type='application/zip')
-            response['Content-Disposition'] = 'attachment; filename="output_학습용.zip"'
+            response['Content-Disposition'] = 'attachment; filename="output_시험용.zip"'
             os.remove(zip_path)
             return response
     return render(request, 'wordgod.html')
