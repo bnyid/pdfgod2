@@ -112,6 +112,8 @@ def for_study(request):
             else:
                 file_title_text = ""  # 괄호 안에 내용이 없거나 괄호가 없는 경우 빈 문자열 할당
 
+            file_title_text = re.sub(r'\b0*(\d+)\b', r'\1', file_title_text)
+
             try:
                 intro_language = detect(file_title_text)
                 if intro_language == 'ko':
@@ -200,6 +202,8 @@ def for_exam(request):
                 file_title_text = match.group(1)
             else:
                 file_title_text = ""  # 괄호 안에 내용이 없거나 괄호가 없는 경우 빈 문자열 할당
+
+            file_title_text = re.sub(r'\b0*(\d+)\b', r'\1', file_title_text)
 
             try:
                 intro_language = detect(file_title_text)
