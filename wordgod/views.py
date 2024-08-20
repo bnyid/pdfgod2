@@ -103,11 +103,6 @@ def for_study(request):
             
             logo_message = text_to_speech_with_google("B&Y, Word Practice", language_code='en-US', voice_name='en-US-Neural2-D')
             combined_audio += logo_message
-            '''
-            intro_message = text_to_speech_with_google("Word practice", language_code='en-US', voice_name='en-US-Neural2-D')
-            combined_audio += intro_message
-            combined_audio += AudioSegment.silent(duration=500)
-            '''
 
             file_name = os.path.splitext(excel_file.name)[0]
             match = re.search(r'\(([^)]+)\)', file_name)
@@ -192,32 +187,50 @@ def for_exam(request):
 
             total_words_count = len(df)
             combined_audio = AudioSegment.silent(duration=1500)
-
-            logo_message_text = """
-            <speak>
-                <prosody rate="1.5" pitch="-2st">
-                    <say-as interpret-as="characters">B&Y</say-as>
-                </prosody>
-            </speak>
-            """
+            
             logo_message = text_to_speech_with_google("B&Y, Word Test", language_code='en-US', voice_name='en-US-Neural2-D')
             combined_audio += logo_message
-
-            '''
-            intro_message = text_to_speech_with_google("Word test", language_code='en-US', voice_name='en-US-Wavenet-D')
-            combined_audio += intro_message
-            '''
             
-            combined_audio += AudioSegment.silent(duration=2000)
+            combined_audio += AudioSegment.silent(duration=500)
+
+            file_name = os.path.splitext(excel_file.name)[0]
+            match = re.search(r'\(([^)]+)\)', file_name)
+            
+            if match:
+                file_title_text = match.group(1)
+            else:
+                file_title_text = ""  # 괄호 안에 내용이 없거나 괄호가 없는 경우 빈 문자열 할당
+
+            try:
+                intro_language = detect(file_title_text)
+                if intro_language == 'ko':
+                    title_language_code = 'ko-KR'
+                    title_voice_name = 'ko-KR-Wavenet-A'
+                else:
+                    title_language_code = 'en-US'
+                    title_voice_name = 'en-US-Wavenet-D'
+
+            except LangDetectException:
+                # 감지 실패 시 기본값 설정 (영어)
+                title_language_code = 'en-US'
+                title_voice_name = 'en-US-Wavenet-D'
+            
+            
+            if file_title_text:  # 빈 문자열이 아닌 경우에만 음성 합성 호출
+                title_message = text_to_speech_with_google(file_title_text, language_code=title_language_code, voice_name=title_voice_name)
+                combined_audio += title_message
+                combined_audio += AudioSegment.silent(duration=1500)
+
+            
 
             start_message = text_to_speech_with_google(f"총 {total_words_count}개의 단어 시험을 시작합니다", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
             combined_audio += start_message
-            combined_audio += AudioSegment.silent(duration=1300)
+            combined_audio += AudioSegment.silent(duration=1000)
 
             dingdong_path = os.path.join(settings.BASE_DIR, 'static', 'sound', 'dingdong.mp3')
             dingdong_sound = AudioSegment.from_file(dingdong_path, format="mp3")
             combined_audio += dingdong_sound
-            combined_audio += AudioSegment.silent(duration=1500)
+            combined_audio += AudioSegment.silent(duration=1300)
 
             for index, row in df.iterrows():
                 word = row['Word']
@@ -237,7 +250,7 @@ def for_exam(request):
                     if i == 0:
                         combined_audio += AudioSegment.silent(duration=800)
                 
-                combined_audio += AudioSegment.silent(duration=6500)
+                combined_audio += AudioSegment.silent(duration=2500)
             combined_audio += dingdong_sound
             combined_audio += AudioSegment.silent(duration=1500)
 
