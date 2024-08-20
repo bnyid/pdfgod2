@@ -255,7 +255,7 @@ def for_exam(request):
             combined_audio += AudioSegment.silent(duration=1500)
 
             base_filename = os.path.splitext(excel_file.name)[0]
-            output_path = os.path.join(tempfile.gettempdir(), f"{base_filename}_시험용.mp3")
+            output_path = os.path.join(tempfile.gettempdir(), f"{base_filename}.mp3")
             combined_audio.export(output_path, format="mp3")
             mp3_files.append(output_path)
 
