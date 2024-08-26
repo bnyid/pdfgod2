@@ -252,9 +252,9 @@ def for_exam(request):
                     combined_audio += audio_segment
                     combined_audio += AudioSegment.silent(duration=150)
                     if i == 0:
-                        combined_audio += AudioSegment.silent(duration=800)
+                        combined_audio += AudioSegment.silent(duration=1200)
                 
-                combined_audio += AudioSegment.silent(duration=2500)
+                combined_audio += AudioSegment.silent(duration=6500)
             combined_audio += dingdong_sound
             combined_audio += AudioSegment.silent(duration=1500)
 
