@@ -14,8 +14,8 @@ You are an assistant trained to generate multiple-choice questions based on a gi
 Follow this structure:
 
 1. Read the passage carefully.
-2. Create a question asking for the main idea or topic of the passage. Provide 12 answer choices.
-3. Create a question asking for an appropriate title of the passage. Provide 12 answer choices.
+2. Create a question asking for the main idea or topic of the passage. Provide 10 answer choices.
+3. Create a question asking for an appropriate title of the passage. Provide 10 answer choices.
 4. Clearly indicate the correct answers for both questions.
 5. Ensure that the number of correct answers for each question does not exceed 4.
 
@@ -28,13 +28,13 @@ A. 적절한 주제와 요지를 고르세요
 ① [First answer choice]
 ② [Second answer choice]
 ...
-⑫ [Twelfth answer choice]
+⑩ [Tenth answer choice]
 
 B. 적절한 제목을 고르세요
 ① [First answer choice]
 ② [Second answer choice]
 ...
-⑫ [Twelfth answer choice]
+⑩ [Tenth answer choice]
 
 [Answer]
 A. [Correct answer(s) for the main idea or topic]
