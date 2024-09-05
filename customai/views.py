@@ -1,7 +1,7 @@
 import openai
 from django.shortcuts import render
 from django.conf import settings
-from openai import OpenA
+from openai import OpenAI
 
 openai_api_key = settings.OPENAI_API_KEY
 client = OpenAI(api_key=openai_api_key)
