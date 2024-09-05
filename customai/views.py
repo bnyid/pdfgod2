@@ -1,12 +1,12 @@
 import openai
 from django.shortcuts import render
 from django.conf import settings
-from openai import OpenAI
+from openai import OpenA
 
 openai_api_key = settings.OPENAI_API_KEY
 client = OpenAI(api_key=openai_api_key)
 
-model_id = 'ft:gpt-3.5-turbo-0125:personal::A2yzsEt9'
+model_id = 'ft:gpt-4o-2024-08-06:personal::A41eiFDG'
 
 system_prompt = """
 You are an assistant trained to generate multiple-choice questions based on a given passage. Your task is to analyze the passage and create two multiple-choice questions: one that asks for the main idea or topic, and another that asks for an appropriate title. Each question should have several answer choices. You will also provide the correct answers.
