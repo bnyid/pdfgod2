@@ -1,3 +1,9 @@
+## 키파일 등
+.env
+nohup.out
+bny-word-0e0713389fa7.json
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
