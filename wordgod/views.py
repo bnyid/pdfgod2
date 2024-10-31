@@ -141,22 +141,22 @@ def for_study(request):
             for index, row in df.iterrows():
                 word_number = row['Number']  # 1열의 단어 번호
                 word = row['Word']
-                modified_word = word.replace('-ing', 'I.N.G').replace(' A ', ',A ').replace('~ing', 'I.N.G ').replace(' ~ ', ' ').replace('to RV', 'to V').replace('to R', 'to V').replace('*', '')
+                modified_word = word.replace('-ing', 'I.N.G').replace(' A ', ',A ').replace('~ing', 'I.N.G ').replace(' ~ ', ' ').replace('to RV', 'to V').replace('to R', 'to V').replace('*', '').replace('~', ' ')
                 
                 
                 print(modified_word)
                 question_number_audio = text_to_speech_with_google(f"{word_number}번", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
                 combined_audio += question_number_audio
-                combined_audio += AudioSegment.silent(duration=300)
+                combined_audio += AudioSegment.silent(duration=800)
                 for i in range(2):
                     audio_segment = text_to_speech_with_google(modified_word, language_code='en-US', voice_name='en-US-Neural2-G')
                     #audio_segment = text_to_speech_with_google(modified_word, language_code='en-US', voice_name='en-US-Studio-O')
                     combined_audio += audio_segment
-                    combined_audio += AudioSegment.silent(duration=400)
+                    combined_audio += AudioSegment.silent(duration=1000)
                     #if i == 0:
                      #   combined_audio += AudioSegment.silent(duration=500)
                 
-                combined_audio += AudioSegment.silent(duration=1000)
+                combined_audio += AudioSegment.silent(duration=850)
             combined_audio += dingdong_sound
             combined_audio += AudioSegment.silent(duration=1500)
 
