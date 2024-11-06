@@ -78,7 +78,7 @@ def for_study(request):
         files = request.FILES.getlist('file')
         mp3_files = []
         for excel_file in files:
-            df = pd.read_excel(excel_file, header=None)
+            df = pd.read_excel(excel_file, header=None, converters={1: str})
             df.columns = ['Number', 'Word', 'Meaning']  # 번호,영단어,우리말 뜻으로 컬럼 이름 지정
 
             total_words_count = len(df)
@@ -184,7 +184,7 @@ def for_exam(request):
         files = request.FILES.getlist('file')
         mp3_files = []
         for excel_file in files:
-            df = pd.read_excel(excel_file, header=None)
+            df = pd.read_excel(excel_file, header=None, converters={1: str})
             df.columns = ['Number', 'Word', 'Meaning']  # 번호,영단어,우리말 뜻으로 컬럼 이름 지정
 
             total_words_count = len(df)
@@ -238,8 +238,7 @@ def for_exam(request):
 
             for index, row in df.iterrows():
                 word = row['Word']
-                modified_word = word.replace('-ing', 'I.N.G').replace(' A ', ',A ').replace('~ing', 'I.N.G ').replace(' ~ ', ' ').replace('to RV', 'to V').replace('to R', 'to V').replace('toR', 'to V').replace('*', '').replace('~', '')
-                
+                modified_word = word.replace('-ing', 'I.N.G').replace(' A ', ',A ').replace('~ing', 'I.N.G ').replace(' ~ ', ' ').replace('to RV', 'to V').replace('to R', 'to V').replace('toR', 'to V').replace('*', '').replace('~', '').replace('p.p', 'p,p')
                 
                 question_number = index + 1
                 
