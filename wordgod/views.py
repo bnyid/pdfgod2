@@ -308,7 +308,7 @@ def for_text_study(request):
             combined_audio += unit_message
             combined_audio += AudioSegment.silent(duration=1000)
 
-            subtitle_message = text_to_speech_with_google(f"{subtitle}", language_code='en-US', voice_name='en-US-Wavenet-D', speaking_rate=0.8)
+            subtitle_message = text_to_speech_with_google(f"{subtitle}", language_code='en-US', voice_name='en-US-Wavenet-D', speaking_rate=0.65)
             combined_audio += subtitle_message
             combined_audio += AudioSegment.silent(duration=1000)
 
@@ -323,7 +323,7 @@ def for_text_study(request):
                 modified_text, 
                 language_code='en-US',  # 여기서는 영어로 가정
                 voice_name='en-US-Neural2-G',
-                speaking_rate=0.8
+                speaking_rate=0.65
             )
 
             combined_audio += audio_segment
