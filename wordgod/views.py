@@ -38,7 +38,7 @@ def ssml_text_to_speech(ssml_text, language_code, voice_name):
 
 
 
-def text_to_speech_with_google(text, language_code, voice_name, output_format="mp3"):
+def text_to_speech_with_google(text, language_code, voice_name, output_format="mp3", speaking_rate=1):
     client = texttospeech.TextToSpeechClient()
     # Google Cloud Text-to-Speech 클라이언트를 초기화합니다.
 
@@ -52,7 +52,8 @@ def text_to_speech_with_google(text, language_code, voice_name, output_format="m
     # 음성 합성을 위한 언어 코드와 음성 유형을 설정합니다.
 
     audio_config = texttospeech.AudioConfig(
-        audio_encoding=texttospeech.AudioEncoding.MP3
+        audio_encoding=texttospeech.AudioEncoding.MP3,
+        speaking_rate=speaking_rate
     )
     # 오디오 출력 형식을 MP3로 설정합니다.
 
@@ -273,4 +274,84 @@ def for_exam(request):
             response['Content-Disposition'] = 'attachment; filename="output_시험용.zip"'
             os.remove(zip_path)
             return response
+    return render(request, 'wordgod.html')
+
+
+
+
+def for_text_study(request):
+    if request.method == 'POST':
+        excel_file = request.FILES.get('file')
+        if not excel_file:
+            return HttpResponse("파일이 업로드되지 않았습니다.", status=400)
+        
+        mp3_files = []
+
+        df = pd.read_excel(excel_file, header=None, converters={1: str})
+        df.columns = ['Title', 'Unit', 'Subtitle', 'Text']  # 필요에 맞게 컬럼명 수정
+    
+        for index, row in df.iterrows():
+            title = row['Title']
+            unit = row['Unit']
+            subtitle = row['Subtitle']
+            text_to_read = row['Text']
+
+            # 오디오 앞부분 무음
+            combined_audio = AudioSegment.silent(duration=1500)
+
+            title_message = text_to_speech_with_google(f"{title}", language_code='en-US', voice_name='en-US-Wavenet-D')
+            combined_audio += title_message
+            combined_audio += AudioSegment.silent(duration=1000)
+
+            # Unit + subtitle message (=intro_message)
+            unit_message = text_to_speech_with_google(f"Unit {unit}", language_code='en-US', voice_name='en-US-Wavenet-D')
+            combined_audio += unit_message
+            combined_audio += AudioSegment.silent(duration=1000)
+
+            subtitle_message = text_to_speech_with_google(f"{subtitle}", language_code='en-US', voice_name='en-US-Wavenet-D', speaking_rate=0.8)
+            combined_audio += subtitle_message
+            combined_audio += AudioSegment.silent(duration=1000)
+
+            # 문자열 변환(예: '-ing' -> 'I.N.G' 등)
+            modified_text = text_to_read \
+                .replace('-ing', 'I.N.G') \
+                .replace('~ing', 'I.N.G') \
+                .replace('*', '') \
+                .replace('~', '')
+
+            audio_segment = text_to_speech_with_google(
+                modified_text, 
+                language_code='en-US',  # 여기서는 영어로 가정
+                voice_name='en-US-Neural2-G',
+                speaking_rate=0.8
+            )
+
+            combined_audio += audio_segment
+            combined_audio += AudioSegment.silent(duration=1000)
+            
+            # 마지막 사운드(딩동 소리 등)
+            dingdong_path = os.path.join(settings.BASE_DIR, 'static', 'sound', 'dingdong.mp3')
+            dingdong_sound = AudioSegment.from_file(dingdong_path, format="mp3")
+            combined_audio += dingdong_sound
+            combined_audio += AudioSegment.silent(duration=1500)
+
+            # mp3 파일 임시 저장
+            output_filename = f"{title}_Unit{unit}_{subtitle}.mp3"
+            output_path = os.path.join(tempfile.gettempdir(), output_filename)
+            combined_audio.export(output_path, format="mp3")
+            mp3_files.append(output_path)
+
+        # ZIP 파일 생성 및 반환
+        zip_path = tempfile.NamedTemporaryFile(delete=False, suffix=".zip").name
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            for mp3_file in mp3_files:
+                zipf.write(mp3_file, os.path.basename(mp3_file))
+                os.remove(mp3_file)
+
+        with open(zip_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type='application/zip')
+            response['Content-Disposition'] = 'attachment; filename="output_본문학습용.zip"'
+            os.remove(zip_path)
+            return response
+
     return render(request, 'wordgod.html')
