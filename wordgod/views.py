@@ -440,7 +440,7 @@ def for_meaning_study(request):
                 meaning = row['Meaning']
 
                 modified_word = word.replace('-ing', 'I.N.G').replace(' A ', ',A ').replace('~ing', 'I.N.G ').replace(' ~ ', ' ').replace('to RV', 'to V').replace('to R', 'to V').replace('toR', 'to V').replace('*', '').replace('~', '').replace('p.p', 'p,p')
-                modified_meaning = meaning.replace('~를', '뭐뭐를').replace('~을', '뭐뭐를').replace('(', '').replace(')', '').replace('~에', '뭐뭐에').replace('~로', '뭐뭐로').replace('~', '뭐뭐 ').replace('-',',').replace('N', '명사')
+                modified_meaning = meaning.replace('~를', '뭐뭐를').replace('~을', '뭐뭐를').replace('(', '').replace(')', '').replace('~이', '뭐뭐가').replace('…', '뭐뭐').replace('~', '뭐뭐 ').replace('-',',').replace('N', '명사')
                 
 
                 question_number = index + 1
