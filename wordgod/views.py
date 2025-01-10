@@ -278,6 +278,212 @@ def for_exam(request):
 
 
 
+def for_study(request):
+    if request.method == 'POST':
+        files = request.FILES.getlist('file')
+        mp3_files = []
+        for excel_file in files:
+            df = pd.read_excel(excel_file, header=None, converters={1: str})
+            df.columns = ['Number', 'Word', 'Meaning']  # 번호,영단어,우리말 뜻으로 컬럼 이름 지정
+
+            total_words_count = len(df)
+            combined_audio = AudioSegment.silent(duration=1500)
+
+            logo_message_text = """
+            <speak>
+                <prosody rate="x-high" pitch="low">
+                    B&Y
+                </prosody>
+            </speak>
+            """
+            
+            '''
+            x-low: 매우 낮음
+            low: 낮음
+            medium: 기본 음조 (기본값)
+            high: 높음
+            x-high: 매우 높음
+            '''
+            
+            
+            logo_message = text_to_speech_with_google("B&Y, Word Practice", language_code='en-US', voice_name='en-US-Neural2-D')
+            combined_audio += logo_message
+
+            file_name = os.path.splitext(excel_file.name)[0]
+            match = re.search(r'\(([^)]+)\)', file_name)
+
+            if match:
+                file_title_text = match.group(1)
+            else:
+                file_title_text = ""  # 괄호 안에 내용이 없거나 괄호가 없는 경우 빈 문자열 할당
+
+            file_title_text = re.sub(r'\b0*(\d+)\b', r'\1', file_title_text)
+
+            try:
+                intro_language = detect(file_title_text)
+                if intro_language == 'ko':
+                    title_language_code = 'ko-KR'
+                    title_voice_name = 'ko-KR-Wavenet-A'
+                else:
+                    title_language_code = 'en-US'
+                    title_voice_name = 'en-US-Wavenet-D'
+            except LangDetectException:
+                # 감지 실패 시 기본값 설정 (영어)
+                title_language_code = 'en-US'
+                title_voice_name = 'en-US-Wavenet-D'
+            
+            
+            if file_title_text:  # 빈 문자열이 아닌 경우에만 음성 합성 호출
+                title_message = text_to_speech_with_google(file_title_text, language_code=title_language_code, voice_name=title_voice_name)
+                combined_audio += title_message
+                combined_audio += AudioSegment.silent(duration=500)
+
+            dingdong_path = os.path.join(settings.BASE_DIR, 'static', 'sound', 'dingdong.mp3')
+            dingdong_sound = AudioSegment.from_file(dingdong_path, format="mp3")
+            combined_audio += dingdong_sound
+            combined_audio += AudioSegment.silent(duration=1000)
+
+            for index, row in df.iterrows():
+                word_number = row['Number']  # 1열의 단어 번호
+                word = row['Word']
+                modified_word = word.replace('-ing', 'I.N.G').replace(' A ', ',A ').replace('~ing', 'I.N.G ').replace(' ~ ', ' ').replace('to RV', 'to V').replace('to R', 'to V').replace('toR', 'to V').replace('*', '').replace('~', '')
+                
+                
+                print(modified_word)
+                question_number_audio = text_to_speech_with_google(f"{word_number}번", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
+                combined_audio += question_number_audio
+                combined_audio += AudioSegment.silent(duration=800)
+                for i in range(2):
+                    audio_segment = text_to_speech_with_google(modified_word, language_code='en-US', voice_name='en-US-Neural2-G')
+                    #audio_segment = text_to_speech_with_google(modified_word, language_code='en-US', voice_name='en-US-Studio-O')
+                    combined_audio += audio_segment
+                    combined_audio += AudioSegment.silent(duration=1000)
+                    #if i == 0:
+                     #   combined_audio += AudioSegment.silent(duration=500)
+                
+                combined_audio += AudioSegment.silent(duration=850)
+            combined_audio += dingdong_sound
+            combined_audio += AudioSegment.silent(duration=1500)
+
+            base_filename = os.path.splitext(excel_file.name)[0]
+            output_path = os.path.join(tempfile.gettempdir(), f"{base_filename}_학습용.mp3")
+            combined_audio.export(output_path, format="mp3")
+            mp3_files.append(output_path)
+
+        zip_path = tempfile.NamedTemporaryFile(delete=False, suffix=".zip").name
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            for mp3_file in mp3_files:
+                zipf.write(mp3_file, os.path.basename(mp3_file))
+                os.remove(mp3_file)
+
+        with open(zip_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type='application/zip')
+            response['Content-Disposition'] = 'attachment; filename="output_학습용.zip"'
+            os.remove(zip_path)
+            return response
+    return render(request, 'wordgod.html')
+
+
+def for_meaning_study(request):
+    if request.method == 'POST':
+        files = request.FILES.getlist('file')
+        mp3_files = []
+        for excel_file in files:
+            df = pd.read_excel(excel_file, header=None, converters={1: str})
+            df.columns = ['Number', 'Word', 'Meaning']  # 번호,영단어,우리말 뜻으로 컬럼 이름 지정
+
+            total_words_count = len(df)
+            combined_audio = AudioSegment.silent(duration=1500)
+            
+            logo_message = text_to_speech_with_google("B&Y, Meaning Study", language_code='en-US', voice_name='en-US-Neural2-D')
+            combined_audio += logo_message
+            
+            combined_audio += AudioSegment.silent(duration=500)
+
+            file_name = os.path.splitext(excel_file.name)[0]
+            match = re.search(r'\(([^)]+)\)', file_name)
+            
+            if match:
+                file_title_text = match.group(1)
+            else:
+                file_title_text = ""  # 괄호 안에 내용이 없거나 괄호가 없는 경우 빈 문자열 할당
+
+            file_title_text = re.sub(r'\b0*(\d+)\b', r'\1', file_title_text)
+
+            try:
+                intro_language = detect(file_title_text)
+                if intro_language == 'ko':
+                    title_language_code = 'ko-KR'
+                    title_voice_name = 'ko-KR-Wavenet-A'
+                else:
+                    title_language_code = 'en-US'
+                    title_voice_name = 'en-US-Wavenet-D'
+
+            except LangDetectException:
+                # 감지 실패 시 기본값 설정 (영어)
+                title_language_code = 'en-US'
+                title_voice_name = 'en-US-Wavenet-D'
+            
+            
+            if file_title_text:  # 빈 문자열이 아닌 경우에만 음성 합성 호출
+                title_message = text_to_speech_with_google(file_title_text, language_code=title_language_code, voice_name=title_voice_name)
+                combined_audio += title_message
+                combined_audio += AudioSegment.silent(duration=1500)
+
+            dingdong_path = os.path.join(settings.BASE_DIR, 'static', 'sound', 'dingdong.mp3')
+            dingdong_sound = AudioSegment.from_file(dingdong_path, format="mp3")
+            combined_audio += dingdong_sound
+            combined_audio += AudioSegment.silent(duration=1000)
+
+            for index, row in df.iterrows():
+                word = row['Word']
+                meaning = row['Meaning']
+
+                modified_word = word.replace('-ing', 'I.N.G').replace(' A ', ',A ').replace('~ing', 'I.N.G ').replace(' ~ ', ' ').replace('to RV', 'to V').replace('to R', 'to V').replace('toR', 'to V').replace('*', '').replace('~', '').replace('p.p', 'p,p')
+                modified_meaning = meaning.replace('~를', '뭐뭐를').replace('~을', '뭐뭐를').replace('(', '').replace(')', '').replace('~에', '뭐뭐에').replace('~로', '뭐뭐로').replace('~', '뭐뭐 ').replace('-',',').replace('N', '명사')
+                
+
+                question_number = index + 1
+                
+
+                question_number_audio = text_to_speech_with_google(f"{question_number}번", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
+                combined_audio += question_number_audio
+                combined_audio += AudioSegment.silent(duration=800)
+                for i in range(2):
+                    audio_segment = text_to_speech_with_google(modified_word, language_code='en-US', voice_name='en-US-Neural2-G')
+                    combined_audio += audio_segment
+                    combined_audio += AudioSegment.silent(duration=500)
+
+                    meaning_segment = text_to_speech_with_google(modified_meaning, language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
+                    combined_audio += meaning_segment
+                    combined_audio += AudioSegment.silent(duration=150)
+                    if i == 0:
+                        combined_audio += AudioSegment.silent(duration=800)
+                
+                combined_audio += AudioSegment.silent(duration=2000)
+            combined_audio += dingdong_sound
+            combined_audio += AudioSegment.silent(duration=1500)
+
+            base_filename = os.path.splitext(excel_file.name)[0]
+            output_path = os.path.join(tempfile.gettempdir(), f"{base_filename}.mp3")
+            combined_audio.export(output_path, format="mp3")
+            mp3_files.append(output_path)
+
+        zip_path = tempfile.NamedTemporaryFile(delete=False, suffix=".zip").name
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            for mp3_file in mp3_files:
+                zipf.write(mp3_file, os.path.basename(mp3_file))
+                os.remove(mp3_file)
+
+        with open(zip_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type='application/zip')
+            response['Content-Disposition'] = 'attachment; filename="output_시험용.zip"'
+            os.remove(zip_path)
+            return response
+    return render(request, 'wordgod.html')
+
+
+
 
 def for_text_study(request):
     if request.method == 'POST':
@@ -323,7 +529,7 @@ def for_text_study(request):
                 modified_text, 
                 language_code='en-US',  # 여기서는 영어로 가정
                 voice_name='en-US-Neural2-G',
-                speaking_rate=0.65
+                speaking_rate=0.7
             )
 
             combined_audio += audio_segment
@@ -355,3 +561,103 @@ def for_text_study(request):
             return response
 
     return render(request, 'wordgod.html')
+
+
+def for_sentence_study(request):
+    if request.method == 'POST':
+        files = request.FILES.getlist('file')
+        if not files:
+            return HttpResponse("파일이 업로드되지 않았습니다.", status=400)
+
+        mp3_files = []
+        for file in files:
+            df = pd.read_excel(file, header=None)
+            df = df.iloc[:, :2]
+            df.columns = ['Number', 'Sentence']
+
+            # 전체 오디오를 위한 초기화
+            combined_audio = AudioSegment.silent(duration=1500)
+
+
+            start_message = text_to_speech_with_google("B&Y, Sentence Dictation", language_code='en-US', voice_name='en-US-Neural2-D')
+            combined_audio += start_message
+            combined_audio += AudioSegment.silent(duration=700)
+
+            dingdong_path = os.path.join(settings.BASE_DIR, 'static', 'sound', 'dingdong.mp3')
+            dingdong_sound = AudioSegment.from_file(dingdong_path, format="mp3")
+            combined_audio += dingdong_sound
+            combined_audio += AudioSegment.silent(duration=1000)
+
+            for index, row in df.iterrows():
+                number = row['Number']
+                sentence = row['Sentence']
+
+                number_message = text_to_speech_with_google(f"{number}번", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
+                combined_audio += number_message
+                combined_audio += AudioSegment.silent(duration=1000)
+
+                sentences = sentence.split('//')
+                print(sentences)
+
+                if len(sentences) > 1:
+                    number_message = text_to_speech_with_google(f"{number_to_korean(len(sentences))}번에 나누어 읽습니다.", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
+                    combined_audio += number_message
+                    combined_audio += AudioSegment.silent(duration=1000)
+
+                
+                for sentence in sentences:
+                    for i in range(3):
+                        audio_segment = text_to_speech_with_google(
+                            sentence, 
+                            language_code='en-US',
+                            voice_name='en-US-Neural2-G',
+                            speaking_rate=0.75
+                        )
+
+                        combined_audio += audio_segment
+                        if i == 0:
+                            combined_audio += AudioSegment.silent(duration=8000)
+                        else:
+                            combined_audio += AudioSegment.silent(duration=3000)
+                    combined_audio += AudioSegment.silent(duration=2000)
+                combined_audio += AudioSegment.silent(duration=4500)
+            # 마지막 사운드(딩동 소리 등)
+            dingdong_path = os.path.join(settings.BASE_DIR, 'static', 'sound', 'dingdong.mp3')
+            dingdong_sound = AudioSegment.from_file(dingdong_path, format="mp3")
+            combined_audio += dingdong_sound
+            combined_audio += AudioSegment.silent(duration=1500)
+
+            base_filename = os.path.splitext(file.name)[0]
+            output_path = os.path.join(tempfile.gettempdir(), f"{base_filename}_문장학습.mp3")
+            combined_audio.export(output_path, format="mp3")
+            mp3_files.append(output_path)
+
+        # ZIP 파일 생성 및 반환
+        zip_path = tempfile.NamedTemporaryFile(delete=False, suffix=".zip").name
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            for mp3_file in mp3_files:
+                zipf.write(mp3_file, os.path.basename(mp3_file))
+                os.remove(mp3_file)
+
+        with open(zip_path, 'rb') as f:
+            response = HttpResponse(f.read(), content_type='application/zip')
+            response['Content-Disposition'] = f'attachment; filename="output_문장학습.zip"'
+            os.remove(zip_path)
+            return response
+
+    return render(request, 'wordgod.html')
+
+def number_to_korean(n):
+    korean_numbers = {
+        1: '한',
+        2: '두',
+        3: '세',
+        4: '네',
+        5: '다섯',
+        6: '여섯',
+        7: '일곱',
+        8: '여덟',
+        9: '아홉',
+        10: '열'
+    }
+    return korean_numbers.get(n, str(n))

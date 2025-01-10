@@ -6,13 +6,12 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
+<body>
 <div class = "d-flex justify-content-center">
     <div class="container">
-    <h2> 엑셀 형식은 아래와 같이 해야합니다.</h2>
+        <h2> 엑셀 형식은 아래와 같이 해야합니다.</h2>
 
-    <img src="{% static 'images/excel_format.png' %}">
-
-    <body>
+        <img src="{% static 'images/excel_format.png' %}">
         <h1>Excel to Speech</h1>
         <form method="post" enctype="multipart/form-data" action="{% url 'for_study' %}">
             {% csrf_token %}
@@ -21,14 +20,10 @@
             <button type="submit">학습용 MP3 생성</button>
         </form>
         
-        <ul><h3>주의! "학습용"의 경우 파일명에 괄호()를 넣으면 MP3가 처음 시작할 때 읽어줍니다.</h3>
-            <li>ex) 파일명을 <u>"송현1 교과서 단어 1과(day 1)"</u>로 하면 -> MP3가 시작되고 "B&Y Word Practice, Day 1" 이렇게 읽어줄겁니다. </li>
-            <br>
-            <li>괄호가 없으면 B&Y Word Practice만 읽어주고 단어가 시작됩니다.</li>        
+        <ul>주의! "학습용"의 경우 파일명에 괄호()를 넣으면 MP3가 처음 시작할 때 읽어줍니다.
+            <li>ex) 파일명을 <u>"송현1 교과서 단어 1과(day 1)"</u>로 하면 -> MP3가 시작되고 "B&Y Word Practice, Day 1" 이렇게 읽어줍니다. </li>
         </ul>
         
-
-        <br>
         <br>
 
         <form method="post" enctype="multipart/form-data" action="{% url 'for_exam' %}">
@@ -37,6 +32,17 @@
             <input type="file" id="file" name="file" multiple>
             <button type="submit">시험용 MP3 생성</button>
         </form>
+
+        <br>
+        <br>
+        <h5> 아래 파일은 한글뜻을 함께 읽어주는 의미학습용입니다.(250110 추가) </h5>
+        <form method="post" enctype="multipart/form-data" action="{% url 'for_meaning_study' %}">
+            {% csrf_token %}
+            <label for="file">엑셀 파일 업로드 (의미 학습용)</label>
+            <input type="file" id="file" name="file" multiple>
+            <button type="submit">의미 학습용 MP3 생성</button>
+        </form>
+
     </div>
     <div class = "container">
         <h2> 딕테이션 제작</h2>
@@ -46,6 +52,16 @@
             <label for="file">엑셀 파일 업로드 (본문 학습용)</label>
             <input type="file" id="file" name="file">
             <button type="submit">본문 학습용 MP3 생성</button>
+        </form>
+    </div>
+    <div class = "container">
+        <h2> 문장 학습용</h2>
+        <img src="{% static 'images/문장학습용.png' %}">
+        <form method="post" enctype="multipart/form-data" action="{% url 'for_sentence_study' %}">
+            {% csrf_token %}
+            <label for="file">엑셀 파일 업로드 (문장 학습용)</label>
+            <input type="file" id="file" name="file" multiple>
+            <button type="submit">문장 학습용 MP3 생성</button>
         </form>
     </div>
 </div>
