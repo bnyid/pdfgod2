@@ -45,7 +45,7 @@
 
     </div>
     <div class = "container">
-        <h2> 딕테이션 제작</h2>
+        <h2> 본문 통 딕테이션 제작</h2>
         <img src="{% static 'images/Dictation_설명.png' %}">
         <form method="post" enctype="multipart/form-data" action="{% url 'for_text_study' %}">
             {% csrf_token %}
@@ -55,7 +55,7 @@
         </form>
     </div>
     <div class = "container">
-        <h2> 문장 학습용</h2>
+        <h2> 문장별 딕테이션 제작</h2>
         <img src="{% static 'images/문장학습용.png' %}">
         <form method="post" enctype="multipart/form-data" action="{% url 'for_sentence_study' %}">
             {% csrf_token %}
