@@ -514,7 +514,7 @@ def for_text_study(request):
             combined_audio += unit_message
             combined_audio += AudioSegment.silent(duration=1000)
 
-            subtitle_message = text_to_speech_with_google(f"{subtitle}", language_code='en-US', voice_name='en-US-Wavenet-D', speaking_rate=0.65)
+            subtitle_message = text_to_speech_with_google(f"{subtitle}", language_code='en-US', voice_name='en-US-Wavenet-D', speaking_rate=0.75)
             combined_audio += subtitle_message
             combined_audio += AudioSegment.silent(duration=1000)
 
