@@ -628,7 +628,7 @@ def for_sentence_study(request):
             combined_audio += AudioSegment.silent(duration=1500)
 
             base_filename = os.path.splitext(file.name)[0]
-            output_path = os.path.join(tempfile.gettempdir(), f"{base_filename}_문장학습.mp3")
+            output_path = os.path.join(tempfile.gettempdir(), f"{base_filename}.mp3")
             combined_audio.export(output_path, format="mp3")
             mp3_files.append(output_path)
 

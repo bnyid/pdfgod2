@@ -56,6 +56,7 @@
     </div>
     <div class = "container">
         <h2> 문장별 딕테이션 제작</h2>
+        <h6> 엑셀 파일 이름과 같은 파일명으로 생성됩니다. </h6>
         <img src="{% static 'images/문장학습용.png' %}">
         <form method="post" enctype="multipart/form-data" action="{% url 'for_sentence_study' %}">
             {% csrf_token %}
