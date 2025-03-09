@@ -3,6 +3,8 @@
 nohup.out
 bny-word-0e0713389fa7.json
 
+# Gunicorn socket
+*.sock
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
