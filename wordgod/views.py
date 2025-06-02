@@ -495,7 +495,7 @@ def for_sentence_study(request):
                 if len(sentences) > 1:
                     number_message = text_to_speech_with_google(f"{number_to_korean(len(sentences))}번에 나누어 읽습니다.", language_code='ko-KR', voice_name='ko-KR-Wavenet-A')
                     combined_audio += number_message
-                    combined_audio += AudioSegment.silent(duration=1000)
+                    combined_audio += AudioSegment.silent(duration=700)
 
                 
                 for sentence in sentences:
@@ -509,11 +509,11 @@ def for_sentence_study(request):
 
                         combined_audio += audio_segment
                         if i == 0:
-                            combined_audio += AudioSegment.silent(duration=8000)
+                            combined_audio += AudioSegment.silent(duration=5000)
                         else:
-                            combined_audio += AudioSegment.silent(duration=3000)
-                    combined_audio += AudioSegment.silent(duration=2000)
-                combined_audio += AudioSegment.silent(duration=4500)
+                            combined_audio += AudioSegment.silent(duration=2300)
+                    combined_audio += AudioSegment.silent(duration=1500)
+                combined_audio += AudioSegment.silent(duration=3500)
             # 마지막 사운드(딩동 소리 등)
             dingdong_path = os.path.join(settings.BASE_DIR, 'static', 'sound', 'dingdong.mp3')
             dingdong_sound = AudioSegment.from_file(dingdong_path, format="mp3")
