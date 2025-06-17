@@ -142,7 +142,7 @@ def for_study(request):
             for index, row in df.iterrows():
                 word_number = row['Number']  # 1열의 단어 번호
                 word = row['Word']
-                modified_word = word.replace('-ing', 'I.N.G').replace(' A ', ',A ').replace('~ing', 'I.N.G ').replace(' ~ ', ' ').replace('to RV', 'to V').replace('to R', 'to V').replace('toR', 'to V').replace('*', '').replace('~', '')
+                modified_word = word.replace('-ing', 'I.N.G').replace(' A ', ',A ').replace('~ing', 'I.N.G ').replace('~ ing', 'I.N.G').replace(' ~ ', ' ').replace('to RV', 'to V').replace('to R', 'to V').replace('toR', 'to V').replace('*', '').replace('~', '').replace('동명사', 'I.N.G').replace('동사원형', 'V')
                 
                 
                 print(modified_word)
