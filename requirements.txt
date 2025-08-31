@@ -7,3 +7,7 @@ pydub==0.25.1
 PyPDF2==3.0.1
 python-decouple==3.8
 reportlab==4.2.0
+google-cloud-texttospeech
+google-cloud-speech
+google-cloud-storage
+openpyxl
